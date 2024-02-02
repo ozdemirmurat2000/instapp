@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "503669829101",
+    "project_id": "insdogria-51ed1",
+    "storage_bucket": "insdogria-51ed1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503669829101:android:a11c7e6bdec9f508ec4be4",
+        "android_client_info": {
+          "package_name": "com.example.instapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtOA8BoMq0G80kynJcl-srmNALW3zpbrc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

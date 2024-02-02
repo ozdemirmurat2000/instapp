@@ -40,7 +40,17 @@ dependencies:
   iconsax: ^0.0.8
   flutter_screenutil: ^5.9.0
   gradient_icon: ^2.0.9
-
+  http: ^1.2.0
+  android_play_install_referrer: ^0.3.0
+  onesignal_flutter: ^5.0.4
+  device_info_plus: ^9.1.1
+  webview_flutter: ^4.4.4
+  webview_flutter_wkwebview: ^3.11.0
+  webview_flutter_android: ^3.14.0
+  webview_cookie_manager: ^2.0.6
+  shared_preferences: ^2.2.2
+  firebase_core: ^2.25.0
+  intl: ^0.19.0
 
 
 dev_dependencies:

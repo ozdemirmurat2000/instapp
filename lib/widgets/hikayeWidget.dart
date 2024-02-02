@@ -32,14 +32,13 @@ class HikayeWidget extends StatelessWidget {
               color: KColors.textColorLinearStart.withOpacity(0.4),
               border: Border.all(width: 2.w, color: Colors.transparent),
               borderRadius: BorderRadius.circular(100.w),
-              image: DecorationImage(
-                fit: kullaniciHikaye.isCover == false
-                    ? BoxFit.cover
-                    : BoxFit.none,
-                image: AssetImage(
-                  kullaniciHikaye.userImage,
-                ),
-              ),
+              image: kullaniciHikaye.userImage == ''
+                  ? null
+                  : DecorationImage(
+                      fit: kullaniciHikaye.isCover == false
+                          ? BoxFit.cover
+                          : BoxFit.none,
+                      image: NetworkImage(kullaniciHikaye.userImage)),
             ),
           ),
         ),

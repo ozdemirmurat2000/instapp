@@ -6,6 +6,8 @@ import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/strings.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/screens/homeScreen.dart';
+import 'package:instapp/screens/webview.dart';
+import 'package:instapp/widgets/logoWidget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -42,7 +44,7 @@ class SplashScreen extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Get.to(HomeScreen());
+            Get.to(const WebviewScreen());
           },
           child: Container(
             margin: EdgeInsets.symmetric(
@@ -96,33 +98,7 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             children: [
               // LOGO
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                        text: 'XR',
-                        style: KTextStyle.KHeaderTextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          textColor: KColors.textColorLinearStart,
-                        )),
-                    TextSpan(
-                        text: 'eports',
-                        style: KTextStyle.KHeaderTextStyle(
-                          fontSize: 16.sp,
-                          textColor: KColors.textColorLinearMiddle,
-                        )),
-                    TextSpan(
-                      text: '+',
-                      style: KTextStyle.KHeaderTextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        textColor: KColors.textColorLinearEnd,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const Logo(),
               Text(
                 'Sana ait hesabın ile giriş yaparak profilini analiz et!',
                 style: KTextStyle.KHeaderTextStyle(
