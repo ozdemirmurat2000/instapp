@@ -5,8 +5,8 @@ import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/utils/iconGradient.dart';
+import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
-import 'package:instapp/widgets/logoWidget.dart';
 
 class SecretSearchScreen extends StatelessWidget {
   const SecretSearchScreen({super.key});
@@ -22,7 +22,7 @@ class SecretSearchScreen extends StatelessWidget {
         backgroundColor: Colors.black.withOpacity(0.1),
 
         // APP BAR
-        appBar: appBar(),
+        appBar: ScreenDetails.appBar(context),
         body: SingleChildScrollView(
           child: SizedBox(
             width: MediaQuery.of(context).size.width.w,
@@ -88,56 +88,6 @@ class SecretSearchScreen extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Container divider(BuildContext context) {
-    return Container(
-      width: 330.w,
-      height: 1.h,
-      decoration: BoxDecoration(
-        color: Colors.transparent.withOpacity(0.5),
-        gradient: LinearGradient(
-          colors: [
-            KColors.textColorLinearStart.withOpacity(0.1),
-            KColors.textColorLinearStart,
-            KColors.textColorLinearStart.withOpacity(0.1),
-          ],
-        ),
-      ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      centerTitle: true,
-      title: Padding(
-        padding: EdgeInsets.only(top: 17.h),
-        child: const Logo(),
-      ),
-      leadingWidth: 70.w,
-      toolbarHeight: 70.h,
-      backgroundColor: Colors.transparent,
-      leading: GestureDetector(
-        onTap: () {
-          Get.back();
-        },
-        child: Container(
-          margin: EdgeInsets.only(left: 23.w, top: 17.h),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100.w),
-            gradient: LinearGradient(
-              colors: [
-                KColors.textColorLinearStart.withOpacity(0.1),
-                KColors.textColorLinearMiddle.withOpacity(0.1),
-                KColors.textColorLinearEnd.withOpacity(0.1),
-              ],
-            ),
-          ),
-          padding: EdgeInsets.all(10.w),
-          child: MyUtils.maskIcon(Iconsax.arrow_left_2, 20),
         ),
       ),
     );

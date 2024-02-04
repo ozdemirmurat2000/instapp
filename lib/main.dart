@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:android_play_install_referrer/android_play_install_referrer.dart';
@@ -15,6 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import 'screens/premiumScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,13 +61,21 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initReferrerDetails();
     getId();
+    checkLoginStatus();
+  }
+
+  bool loginStatus = false;
+
+  checkLoginStatus() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    loginStatus = pref.getBool('cookie_status') ?? false;
   }
 
   String _referrerDetails = '';
-  var controller = Get.put(LoginStatusController());
 
   @override
   Widget build(BuildContext context) {
+    log('$loginStatus');
     return ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,
@@ -80,10 +91,10 @@ class _MyAppState extends State<MyApp> {
             home: child,
           );
         },
-        child: controller.loginStatus.value == false
-            ? const SplashScreen()
-            : const HomeScreen());
+        child: loginStatus ? const HomeScreen() : const SplashScreen());
   }
+
+//  PremiumScreen());
 
   Future<void> initReferrerDetails() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();

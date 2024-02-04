@@ -5,8 +5,8 @@ import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/utils/iconGradient.dart';
+import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
-import 'package:instapp/widgets/logoWidget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class HdGoruntuleScreen extends StatelessWidget {
@@ -21,7 +21,7 @@ class HdGoruntuleScreen extends StatelessWidget {
               image: AssetImage('assets/images/backgroundBlur.png'))),
       child: Scaffold(
         backgroundColor: Colors.black.withOpacity(0.1),
-        appBar: appBar(),
+        appBar: ScreenDetails.appBar(context),
         body: SizedBox(
           width: MediaQuery.of(context).size.width.w,
           child: SingleChildScrollView(
@@ -30,7 +30,7 @@ class HdGoruntuleScreen extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 29.h),
-                  child: divider(context),
+                  child: ScreenDetails.divider(context),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 21.h, left: 79.w, right: 76.w),
@@ -94,56 +94,6 @@ class HdGoruntuleScreen extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Container divider(BuildContext context) {
-    return Container(
-      width: 330.w,
-      height: 1.h,
-      decoration: BoxDecoration(
-        color: Colors.transparent.withOpacity(0.5),
-        gradient: LinearGradient(
-          colors: [
-            KColors.textColorLinearStart.withOpacity(0.1),
-            KColors.textColorLinearStart,
-            KColors.textColorLinearStart.withOpacity(0.1),
-          ],
-        ),
-      ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      centerTitle: true,
-      title: Padding(
-        padding: EdgeInsets.only(top: 17.h),
-        child: const Logo(),
-      ),
-      leadingWidth: 70.w,
-      toolbarHeight: 70.h,
-      backgroundColor: Colors.transparent,
-      leading: GestureDetector(
-        onTap: () {
-          Get.back();
-        },
-        child: Container(
-          margin: EdgeInsets.only(left: 23.w, top: 17.h),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100.w),
-            gradient: LinearGradient(
-              colors: [
-                KColors.textColorLinearStart.withOpacity(0.1),
-                KColors.textColorLinearMiddle.withOpacity(0.1),
-                KColors.textColorLinearEnd.withOpacity(0.1),
-              ],
-            ),
-          ),
-          padding: EdgeInsets.all(10.w),
-          child: MyUtils.maskIcon(Iconsax.arrow_left_2, 20),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,8 +11,9 @@ import 'package:instapp/models/cardModelDefault.dart';
 import 'package:instapp/models/hikayeModel.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/screens/hdGoruntuleScreen.dart';
+import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
-import 'package:instapp/services/getUserInfo.dart';
+import 'package:instapp/screens/settingScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';
@@ -19,7 +21,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:http/http.dart' as http;
 
-import '../services/getCookies.dart';
+import '../services/Get/getClass.dart';
+import '../services/Post/postUserData.dart';
 import '../widgets/cardWidgetMulti.dart';
 import '../widgets/hikayeWidget.dart';
 
@@ -69,10 +72,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    GetCookies.getCookies();
-    GetUserInfo.getUserInfo();
+
+    startService();
+  }
+
+  startService() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    bool cookieStatus = pref.getBool('cookie_status') ?? false;
+    bool userFollowingStatus = pref.getBool('following_data_status') ?? false;
+    bool userFollowerStatus = pref.getBool('followers_data_status') ?? false;
+
+    if (await GetServices.getCookies()) {
+      log('TUM FONKSIYONLAR BASLADI');
+      await GetServices.getUserInfo();
+      if (userFollowerStatus == false && userFollowingStatus == false) {
+        await GetServices.getUserFollowingData();
+        await GetServices.getUserFollowersData();
+      }
+      await PostServices.postUserInfo();
+      await PostServices.postUserFollowingData();
+      await PostServices.postUserData();
+      log('TUM FONKSIYONLAR BITTI');
+      controller.loginStatus.value = true;
+      controller.checkStatus();
+    } else if (cookieStatus) {
+      controller.loginStatus.value = true;
+      controller.checkStatus();
+    }
+
+    // controller.loginStatus.value = true;
+    // log('${controller.loginStatus.value}');
   }
 
   var controller = Get.put(LoginStatusController());
@@ -89,7 +119,40 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Colors.black.withOpacity(0.1),
 
           // APP BAR
-          appBar: appBar(),
+          appBar: AppBar(
+            // AYARLARIN OLDUGU KISIM
+            backgroundColor: Colors.transparent,
+            leading: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () {
+                Get.to(SettingScreen(
+                  userFullName: controller.userDataModel.value.userNameSurname,
+                  userImageUrl: controller.userDataModel.value.userImageURL,
+                  userName: controller.userDataModel.value.userName,
+                ));
+              },
+              child: MyUtils.maskIcon(Iconsax.setting_25, 24),
+            ),
+
+            // BASARIMLARIN OLDUGU KISIM
+            actions: [
+              InkWell(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                onTap: () {
+                  Get.to(
+                    PremiumScreen(),
+                  );
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(right: 30.0.w),
+                  child: MyUtils.maskIcon(Iconsax.cup5, 24,
+                      color: const Color(0xFFFFC700)),
+                ),
+              ),
+            ],
+          ),
           body: controller.loginStatus.value == false
               ? const Center(
                   child: CircularProgressIndicator(),
@@ -381,66 +444,4 @@ Padding hikayeler() {
       ),
     ),
   );
-}
-
-AppBar appBar() {
-  return AppBar(
-    // AYARLARIN OLDUGU KISIM
-    backgroundColor: Colors.transparent,
-    leading: MyUtils.maskIcon(Iconsax.setting_25, 24),
-
-    // BASARIMLARIN OLDUGU KISIM
-    actions: [
-      Padding(
-        padding: EdgeInsets.only(right: 30.0.w),
-        child:
-            MyUtils.maskIcon(Iconsax.cup5, 24, color: const Color(0xFFFFC700)),
-      ),
-    ],
-  );
-}
-
-fetchUserData() async {
-  SharedPreferences pref = await SharedPreferences.getInstance();
-
-  String url = 'http://profileanalyzerapp.com/mobile/loginUser.php';
-
-  var data = {
-    'key': "spyspy", //sabit deÄŸiÅŸken
-    'username': pref.get('username'), //instagram kullanÄ±cÄ± adÄ±
-    'instagram_id': pref.get('ds_user_id'), //cookieden ds_user_id
-    'ig_did': pref.get('ig_did'), //cookieden
-    'ig_nrcb': pref.get('ig_nrcb'), //cookieden
-    'csrftoken': pref.get('csrftoken'), //cookieden
-    'mid': pref.get('mid'), //cookieden
-    'ds_user_id': pref.get('ds_user_id'), //cookieden ds_user_id
-    'sessionid': pref.get('sessionid'), //cookieden
-    'shbid': pref.get('shbid'), //cookieden
-    'shbts': pref.get('shbts'), //cookieden
-    'rur': pref.get('rur'), //cookieden
-    'platform': "android", //sabit deÄŸiÅŸken
-    'device_id': pref.get('device_id'), //cihaz id si
-    'onesignal_id': pref.get('onesignal_id'), //onesignal_id
-    'referrer': pref.get('referrer') ?? "empty", //play install referrer
-    'language_code': pref.get('language_code'), //kullanÄ±cÄ±nÄ±n uygulama dili
-    'app': "app_name_buraya_gelecek" //uygulama kÄ±sa adÄ± sabit deÄŸiÅŸken
-  };
-
-  try {
-    // HTTP Post isteği oluştur
-    final response = await http.post(
-      Uri.parse(url),
-      body: jsonEncode(data), // Veriyi JSON formatına çevir
-      headers: {'Content-Type': 'application/json'}, // İçerik türünü belirt
-    );
-
-    // İstek başarılı ise
-    if (response.statusCode == 200) {
-      print('İstek başarılı: ${response.body}');
-    } else {
-      print('İstek başarısız: ${response.body}');
-    }
-  } catch (e) {
-    print('Hata oluştu: $e');
-  }
 }

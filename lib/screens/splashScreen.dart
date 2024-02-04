@@ -5,9 +5,8 @@ import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/strings.dart';
 import 'package:instapp/consts/textStyle.dart';
-import 'package:instapp/screens/homeScreen.dart';
 import 'package:instapp/screens/webview.dart';
-import 'package:instapp/widgets/logoWidget.dart';
+import 'package:instapp/utils/screenDetails.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -44,7 +43,7 @@ class SplashScreen extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Get.to(const WebviewScreen());
+            Get.to(WebviewScreen());
           },
           child: Container(
             margin: EdgeInsets.symmetric(
@@ -98,7 +97,7 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             children: [
               // LOGO
-              const Logo(),
+              ScreenDetails.logo(context),
               Text(
                 'Sana ait hesabın ile giriş yaparak profilini analiz et!',
                 style: KTextStyle.KHeaderTextStyle(
