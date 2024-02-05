@@ -1,11 +1,16 @@
 import 'dart:developer';
 
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/controllers/loginStatusController.dart';
+import 'package:instapp/controllers/settingPageController.dart';
+import 'package:instapp/controllers/showSnackBarController.dart';
+import 'package:instapp/main.dart';
 import 'package:instapp/models/hikayeModel.dart';
 import 'package:instapp/screens/splashScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
@@ -14,7 +19,7 @@ import 'package:instapp/widgets/hikayeWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends StatefulWidget {
   SettingScreen(
       {super.key,
       required this.userFullName,
@@ -26,7 +31,34 @@ class SettingScreen extends StatelessWidget {
   String userFullName;
 
   @override
+  State<SettingScreen> createState() => _SettingScreenState();
+}
+
+getNotificationStatus() async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  bool notificationStatus = pref.getBool('notification_status') ?? false;
+
+  var controller = Get.put(SettingPageController());
+
+  if (notificationStatus) {
+    controller.toogleIngex.value = 2;
+  } else {
+    controller.toogleIngex.value = 1;
+  }
+}
+
+class _SettingScreenState extends State<SettingScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getNotificationStatus();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var controller = Get.put(SettingPageController());
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: ScreenDetails.appBar(context),
@@ -90,7 +122,7 @@ class SettingScreen extends StatelessWidget {
                           height: 40.h,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: NetworkImage(userImageUrl)),
+                                image: NetworkImage(widget.userImageUrl)),
                             borderRadius: BorderRadius.circular(100),
                           ),
                         ),
@@ -101,7 +133,7 @@ class SettingScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              userFullName,
+                              widget.userFullName,
                               style: KTextStyle.KHeaderTextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w800,
@@ -109,7 +141,7 @@ class SettingScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '@$userName',
+                              '@${widget.userName}',
                               style: KTextStyle.KHeaderTextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w500,
@@ -122,7 +154,7 @@ class SettingScreen extends StatelessWidget {
                     ],
                   ),
 
-                  cikisButon(),
+                  cikisButon(context),
                 ],
               ),
             ),
@@ -132,6 +164,35 @@ class SettingScreen extends StatelessWidget {
               cardText: 'Bildirimler',
               icon: Iconsax.notification5,
               isWidgetShow: true,
+              widget: SizedBox(
+                width: 45.w,
+                height: 25.h,
+                child: Obx(
+                  () => AnimatedToggleSwitch.dual(
+                    indicatorSize: Size.fromWidth(300.w),
+                    height: 25.h,
+                    onChanged: (value) async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      if (value == 1) {
+                        await prefs.setBool('notification_status', false);
+                      } else {
+                        await prefs.setBool('notification_status', true);
+                      }
+                      controller.toogleIngex.value = value;
+                    },
+                    current: controller.toogleIngex.value,
+                    first: 1,
+                    second: 2,
+                    style: ToggleStyle(
+                        borderColor: Colors.transparent,
+                        indicatorColor: Colors.white,
+                        backgroundColor: controller.toogleIngex.value == 1
+                            ? Colors.grey
+                            : const Color(0xFF00FF73)),
+                  ),
+                ),
+              ),
             ),
             SettingCard(
               onTap: () {},
@@ -163,40 +224,28 @@ class SettingScreen extends StatelessWidget {
                       actions: [
                         GestureDetector(
                           onTap: () async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
+                            showDialog(
+                              barrierDismissible: true,
+                              context: context,
+                              builder: (context) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                            );
 
-                            String saveFollowing =
-                                prefs.getString('current_followers_data') ?? '';
-                            String saveFollowers =
-                                prefs.getString('current_following_data') ?? '';
-                            String saveFollowingDataTime =
-                                prefs.getString('following_data_time') ?? '';
-                            String saveFollowersDataTime =
-                                prefs.getString('followers_data_time') ?? '';
-                            bool saveFollowingStatus =
-                                prefs.getBool('following_data_status') ?? false;
-                            bool saveFollowersStatus =
-                                prefs.getBool('followers_data_status') ?? false;
-                            await prefs.clear();
-                            final cookieManager = WebviewCookieManager();
-                            await cookieManager
-                                .removeCookie('https://www.instagram.com/');
+                            var controller = Get.find<LoginStatusController>();
+                            var snackController =
+                                Get.put(ShowSnackBarController());
 
-                            await prefs.setString(
-                                'current_following_data', saveFollowing);
-                            await prefs.setString(
-                                'current_followers_data', saveFollowers);
-                            await prefs.setBool(
-                                'following_data_status', saveFollowingStatus);
-                            await prefs.setBool(
-                                'followers_data_status', saveFollowersStatus);
-                            await prefs.setString(
-                                'following_data_time', saveFollowingDataTime);
-                            await prefs.setString(
-                                'followers_data_time', saveFollowersDataTime);
-                            await prefs.setBool('cookie_status', false);
-                            Get.offAll(const SplashScreen());
+                            var status =
+                                await controller.logOutAndDeleteAccount(true);
+
+                            if (status) {
+                              Get.offAll(const SplashScreen());
+                              snackController.showsnackbar(
+                                  context, 'Hesabınız başarıyla silindi.');
+                            }
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -253,34 +302,28 @@ class SettingScreen extends StatelessWidget {
     );
   }
 
-  GestureDetector cikisButon() {
+  GestureDetector cikisButon(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        showDialog(
+          barrierDismissible: true,
+          context: context,
+          builder: (context) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
 
-        String saveFollowing = prefs.getString('current_followers_data') ?? '';
-        String saveFollowers = prefs.getString('current_following_data') ?? '';
-        String saveFollowingDataTime =
-            prefs.getString('following_data_time') ?? '';
-        String saveFollowersDataTime =
-            prefs.getString('followers_data_time') ?? '';
-        bool saveFollowingStatus =
-            prefs.getBool('following_data_status') ?? false;
-        bool saveFollowersStatus =
-            prefs.getBool('followers_data_status') ?? false;
-        await prefs.clear();
+        var controller = Get.find<LoginStatusController>();
+        var snackController = Get.put(ShowSnackBarController());
 
-        await prefs.setString('current_following_data', saveFollowing);
-        await prefs.setString('current_followers_data', saveFollowers);
-        await prefs.setBool('following_data_status', saveFollowingStatus);
-        await prefs.setBool('followers_data_status', saveFollowersStatus);
-        await prefs.setString('following_data_time', saveFollowingDataTime);
-        await prefs.setString('followers_data_time', saveFollowersDataTime);
-        final cookieManager = WebviewCookieManager();
-        await cookieManager.removeCookie('https://www.instagram.com/');
-        await prefs.setBool('cookie_status', false);
+        var status = await controller.logOutAndDeleteAccount(true);
 
-        Get.offAll(const SplashScreen());
+        if (status) {
+          Get.offAll(const SplashScreen());
+          snackController.showsnackbar(context, 'Çıkış işlemi başarılı.');
+        }
       },
       child: Container(
         decoration: BoxDecoration(

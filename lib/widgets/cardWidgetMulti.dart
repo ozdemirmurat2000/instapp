@@ -141,7 +141,9 @@ class CardWidgetMulti extends StatelessWidget {
                   children: [
                     // BASLIK
                     Text(
-                      '-$rightValueText',
+                      int.parse(rightValueText) > 0
+                          ? '-$rightValueText'
+                          : rightValueText,
                       style: KTextStyle.KHeaderTextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,

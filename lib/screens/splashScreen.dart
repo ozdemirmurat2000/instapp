@@ -5,12 +5,16 @@ import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/strings.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/controllers/showSnackBarController.dart';
 import 'package:instapp/screens/webview.dart';
 import 'package:instapp/utils/screenDetails.dart';
+import 'package:lottie/lottie.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class SplashScreen extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Get.to(WebviewScreen());
+            Get.to(const WebviewScreen());
           },
           child: Container(
             margin: EdgeInsets.symmetric(

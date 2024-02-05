@@ -233,7 +233,7 @@ class BuyCardWidget extends StatelessWidget {
         child: Container(
           margin: EdgeInsets.only(bottom: 10.h),
           width: 330.w,
-          height: 75.h,
+          height: 80.h,
           decoration: BoxDecoration(
             border: controller.selectedIndex.value != selectIndex
                 ? null

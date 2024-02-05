@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
 import 'package:instapp/screens/homeScreen.dart';
 import 'package:instapp/screens/splashScreen.dart';
@@ -53,7 +54,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-var controller = WebViewController();
+var _controller = WebViewController();
 
 class _MyAppState extends State<MyApp> {
   @override
@@ -85,6 +86,12 @@ class _MyAppState extends State<MyApp> {
             debugShowCheckedModeBanner: false,
             title: 'First Method',
             theme: ThemeData(
+              snackBarTheme: SnackBarThemeData(
+                contentTextStyle: KTextStyle.KHeaderTextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    textColor: Colors.white),
+              ),
               primarySwatch: Colors.blue,
               textTheme: Typography.englishLike2018.apply(fontSizeFactor: 1.sp),
             ),

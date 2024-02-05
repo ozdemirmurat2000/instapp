@@ -180,6 +180,7 @@ class GetServices {
           prefs.setString('following_data_time', formatter.format(tarih));
 
           log('FETCH USER FOLLOWING TAMAMLANDI');
+          log('${users.length}');
 
           return true;
         } else {

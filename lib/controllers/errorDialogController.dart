@@ -31,7 +31,9 @@ class ErrorDialogs extends GetxController {
         await prefs.setBool('followers_data_status', saveFollowersStatus);
         await prefs.setString('following_data_time', saveFollowingDataTime);
         await prefs.setString('followers_data_time', saveFollowersDataTime);
-        Get.offAll(const SplashScreen());
+        Get.offAll(
+          const SplashScreen(),
+        );
       },
     );
   }

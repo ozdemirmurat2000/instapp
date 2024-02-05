@@ -107,7 +107,7 @@ class PostServices {
 
   ///
   ///
-  /// POST USER FOLLOWING DATA
+  /// POST USER FOLLOWERS DATA
   ///
   ///
 

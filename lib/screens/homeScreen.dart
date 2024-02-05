@@ -187,12 +187,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       CardWidgetMulti(
-                          leftIcon: Iconsax.profile_add5,
-                          leftText: 'Gelen Takipçiler',
-                          leftValueText: '12',
-                          rightIcon: Iconsax.profile_remove5,
-                          rightText: 'Giden Takipçiler',
-                          rightValueText: '15'),
+                        leftIcon: Iconsax.profile_add5,
+                        leftText: 'Gelen Takipçiler',
+                        leftValueText:
+                            controller.newFollowersCount.value.toString(),
+                        rightIcon: Iconsax.profile_remove5,
+                        rightText: 'Giden Takipçiler',
+                        rightValueText:
+                            controller.lostFollowersCount.value.toString(),
+                      ),
 
                       CardWidgetDefault(
                         onTap: () {},

@@ -49,7 +49,7 @@ class UserFollowingModel {
       hasAnonymousProfilePicture: json['has_anonymous_profile_picture'] as bool,
       accountBadges: json['account_badges'],
       latestReelMedia: json['latest_reel_media'] as int,
-      isFavorite: json['is_favorite'] as bool,
+      isFavorite: json['is_favorite'],
     );
   }
 }
