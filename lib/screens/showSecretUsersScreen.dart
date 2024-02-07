@@ -61,7 +61,7 @@ class ShowSecretUsersScreen extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Positioned(
-                      top: 45,
+                      top: 40.h,
                       child: userCard(context),
                     ),
                     Positioned(
