@@ -31,7 +31,7 @@ class _SecretSearchScreenState extends State<SecretSearchScreen> {
       media_count: 0.toString(),
       userFollowers: 100.toString(),
       userFollowed: 323.toString(),
-      userName: '@nisaascii.41',
+      userName: 'nisaascii.41',
       userNameSurname: 'Nisa Aşçı',
       userImageURL:
           'https://images.pexels.com/photos/1391498/pexels-photo-1391498.jpeg?auto=compress&cs=tinysrgb&w=1200');
