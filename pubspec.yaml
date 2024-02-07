@@ -54,6 +54,7 @@ dependencies:
   gradient_borders: ^1.0.0
   lottie: ^3.0.0
   animated_toggle_switch: ^0.8.0
+  blur: ^3.1.0
 
 
 dev_dependencies:

@@ -4,12 +4,37 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/models/userDataModel.dart';
+import 'package:instapp/services/Get/getClass.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
 
-class SecretSearchScreen extends StatelessWidget {
+import 'showSecretUsersScreen.dart';
+
+class SecretSearchScreen extends StatefulWidget {
   const SecretSearchScreen({super.key});
+
+  @override
+  State<SecretSearchScreen> createState() => _SecretSearchScreenState();
+}
+
+class _SecretSearchScreenState extends State<SecretSearchScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // GetServices.getUserFollowerList();
+  }
+
+  UserDataModel user1 = UserDataModel(
+      media_count: 0.toString(),
+      userFollowers: 100.toString(),
+      userFollowed: 323.toString(),
+      userName: '@nisaascii.41',
+      userNameSurname: 'Nisa Aşçı',
+      userImageURL:
+          'https://images.pexels.com/photos/1391498/pexels-photo-1391498.jpeg?auto=compress&cs=tinysrgb&w=1200');
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +109,14 @@ class SecretSearchScreen extends StatelessWidget {
                     controller: TextEditingController(),
                   ),
                 ),
-                const AramaSonucKullanici(),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(ShowSecretUsersScreen(
+                      userDataModel: user1,
+                    ));
+                  },
+                  child: const AramaSonucKullanici(),
+                ),
               ],
             ),
           ),

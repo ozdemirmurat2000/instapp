@@ -14,6 +14,7 @@ import 'package:instapp/screens/hdGoruntuleScreen.dart';
 import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
 import 'package:instapp/screens/settingScreen.dart';
+import 'package:instapp/screens/showSecretUsersScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';

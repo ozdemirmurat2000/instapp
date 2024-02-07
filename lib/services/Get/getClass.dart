@@ -268,7 +268,8 @@ class GetServices {
       String? csrftoken = prefs.getString('csrftoken');
       String? sessionId = prefs.getString('sessionid');
       String url;
-      url = 'https://www.instagram.com/api/v1/feed/$instagramId/reels_tray/';
+      url =
+          'https://www.instagram.com/api/v1/feed/reels_media/?reel_ids=$instagramId';
       try {
         final response = await http.get(Uri.parse(url), headers: {
           'sec-ch-ua':
@@ -297,6 +298,56 @@ class GetServices {
       } catch (e) {
         log('bir hata olustu ===+==> $e');
         ErrorDialogs.gosterHataDialogi();
+      }
+    }
+  }
+
+  ///
+  ///
+  /// KULLANICININ TAKIPCILERININ LISTESI
+  ///
+  ///
+  static Future getUserFollowerList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    bool cookieStatus = prefs.getBool('cookie_status') ?? false;
+
+    if (cookieStatus == true) {
+      String? instagramId = prefs.getString('ds_user_id');
+      String? csrftoken = prefs.getString('csrftoken');
+      String? sessionId = prefs.getString('sessionid');
+      String url;
+      url =
+          'https://www.instagram.com/api/v1/web/search/topsearch/?context=blended&query=$instagramId&rank_token=0.6872023492760977&include_reel=true';
+      try {
+        final response = await http.get(Uri.parse(url), headers: {
+          'sec-ch-ua':
+              '"Chromium";v="94", "Google Chrome";v="94", ";Not A Brand";v="99"',
+          'X-IG-WWW-Claim':
+              'hmac.AR2WwJKC3WR-MoU7JMDfFFID-7fdmd1WlxNLEkz2dna04cuf',
+          'sec-ch-ua-mobile': '?0',
+          'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36',
+          'Accept': '*/*',
+          'X-ASBD-ID': '198387',
+          'sec-ch-ua-platform': '"macOS"',
+          'X-IG-App-ID': '936619743392459',
+          'cookie': 'csrftoken=$csrftoken;sessionid=$sessionId;',
+        });
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          await prefs.setBool('user_search_followers_status', true);
+          log('KULLANICILAR BASARIYLA GETIRILDI ');
+          log('$data');
+
+          return true;
+        } else {
+          log('${response.statusCode} > ${response.body}');
+          // ErrorDialogs.gosterHataDialogi();
+        }
+      } catch (e) {
+        log('bir hata olustu ===+==> $e');
+        // ErrorDialogs.gosterHataDialogi();
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/models/hikayeModel.dart';
 
@@ -22,9 +23,17 @@ class HikayeWidget extends StatelessWidget {
           height: kullaniciHikaye.size?.w ?? 53.w,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100.w),
-            border: Border.all(
-              width: 2.w,
-              color: KColors.textColorLinearStart,
+            border: GradientBoxBorder(
+              gradient: LinearGradient(
+                colors: [
+                  KColors.textColorLinearStart,
+                  KColors.textColorLinearMiddle,
+                  KColors.textColorLinearEnd,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              width: 2,
             ),
           ),
           child: Container(
