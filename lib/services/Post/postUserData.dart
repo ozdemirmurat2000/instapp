@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:instapp/controllers/errorDialogController.dart';
+import 'package:instapp/controllers/searchedUserController.dart';
+import 'package:instapp/models/userPremiumStatusModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
 
@@ -113,6 +116,7 @@ class PostServices {
 
   static Future postUserData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    var controller = Get.put(SearchedUserController());
 
     String userToken = pref.getString('user_token') ?? '';
     bool showAppPreview = pref.getBool('show_app_preview') ?? false;
@@ -129,9 +133,12 @@ class PostServices {
               'app_name': 'xreports',
             });
         if (res.statusCode == 200) {
-          log('${jsonDecode(res.body)}');
+          var json = res.body;
+          controller.userPremiumStatus.value =
+              UserPremiumStatusModel.fromJson(json);
+
+          log('${controller.userPremiumStatus.value?.isPremium}');
           log('POST USER TAMAMLANDI');
-          pref.setBool('show_app_preview', true);
 
           return true;
         } else {

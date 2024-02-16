@@ -7,20 +7,22 @@ import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
+import 'package:instapp/controllers/usersStoriesController.dart';
 import 'package:instapp/models/cardModelDefault.dart';
 import 'package:instapp/models/hikayeModel.dart';
+import 'package:instapp/models/storyModel.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/screens/hdGoruntuleScreen.dart';
 import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
 import 'package:instapp/screens/settingScreen.dart';
-import 'package:instapp/screens/showSecretUsersScreen.dart';
+import 'package:instapp/screens/storyScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:http/http.dart' as http;
+import 'package:story_view/story_view.dart';
 
 import '../services/Get/getClass.dart';
 import '../services/Post/postUserData.dart';
@@ -87,6 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (await GetServices.getCookies()) {
       log('TUM FONKSIYONLAR BASLADI');
       await GetServices.getUserInfo();
+      await GetServices.getUserStories();
+
       if (userFollowerStatus == false && userFollowingStatus == false) {
         await GetServices.getUserFollowingData();
         await GetServices.getUserFollowersData();
@@ -98,6 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
       controller.loginStatus.value = true;
       controller.checkStatus();
     } else if (cookieStatus) {
+      await GetServices.getUserStories();
+
       controller.loginStatus.value = true;
       controller.checkStatus();
     }
@@ -107,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   var controller = Get.put(LoginStatusController());
+  var storiesController = Get.put(UserStoriesController());
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: MyUtils.maskIcon(Iconsax.setting_25, 24),
             ),
 
-            // BASARIMLARIN OLDUGU KISIM
+            // PREMIUM SAYFASI
             actions: [
               InkWell(
                 highlightColor: Colors.transparent,
@@ -162,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       // HIAKYELERIN GOSTERILDIGI ALAN
-                      hikayeler(),
+                      hikayeler(storiesController.instagramReels),
                       SizedBox(height: 15.h),
 
                       // DIVEDER
@@ -366,8 +373,8 @@ Container kullaniciDetayKart(
                                 userDataModel.userFollowers, context),
                             kullaniciDetayCard('Takip edilen',
                                 userDataModel.userFollowed, context),
-                            kullaniciDetayCard('Gönderi',
-                                userDataModel.media_count ?? '0', context),
+                            kullaniciDetayCard(
+                                'Gönderi', userDataModel.media_count, context),
                           ],
                         ),
                       ),
@@ -386,7 +393,7 @@ Container kullaniciDetayKart(
                 kullaniciHikaye: HikayeModel(
                     size: 80.w,
                     isShowName: false,
-                    userImage: userDataModel.userImageURL ?? '',
+                    userImage: userDataModel.userImageURL,
                     userName: 'asd')))
       ],
     ),
@@ -419,33 +426,55 @@ Column kullaniciDetayCard(
   );
 }
 
-Padding hikayeler() {
+Widget hikayeler(List<InstagramReel> reels) {
   return Padding(
-    padding: EdgeInsets.only(left: 20.0.w),
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          HikayeWidget(
+    padding: EdgeInsets.only(top: 21.0.h),
+    child: SizedBox(
+      height: 80.h,
+      child: ListView.builder(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemCount: reels.length + 1,
+        itemBuilder: (context, index) {
+          var deneme;
+          if (index == 0) {
+            return HikayeWidget(
+              isBold: true,
               kullaniciHikaye: HikayeModel(
-                  isCover: true, userImage: '', userName: 'Anonim Izle')),
-          HikayeWidget(
-              kullaniciHikaye:
-                  HikayeModel(userImage: '', userName: 'farukkoc')),
-          HikayeWidget(
-              kullaniciHikaye:
-                  HikayeModel(userImage: '', userName: 'dennislive')),
-          HikayeWidget(
-              kullaniciHikaye:
-                  HikayeModel(userImage: '', userName: 'sinemdmr')),
-          HikayeWidget(
-              kullaniciHikaye:
-                  HikayeModel(userImage: '', userName: 'yandanyandan')),
-          HikayeWidget(
-              kullaniciHikaye:
-                  HikayeModel(userImage: '', userName: 'amanaman')),
-        ],
+                userImage:
+                    deneme == null ? 'assets/icons/anonimEyeIcon.png' : null,
+                userName: 'Anonim izle',
+                isCover: true,
+              ),
+            );
+          } else {
+            return GestureDetector(
+              onTap: () async {
+                Get.to(StoryScreen(
+                  userId: reels[index - 1].id,
+                ));
+
+                /// KULLANICI HIKAYESINI GOSTER
+                ///
+              },
+              child: HikayeWidget(
+                kullaniciHikaye: HikayeModel(
+                  userImage: reels[index - 1].user.profilePicUrl ??
+                      'assets/default.jpg',
+                  userName: kisalt(reels[index - 1].user.username),
+                ),
+              ),
+            );
+          }
+        },
       ),
     ),
   );
+}
+
+String kisalt(String metin, {int uzunluk = 8, String kisaltma = "..."}) {
+  if (metin.length <= uzunluk) {
+    return metin;
+  }
+  return metin.substring(0, uzunluk) + kisaltma;
 }

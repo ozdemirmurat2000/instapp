@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/controllers/searchedUserController.dart';
+import 'package:instapp/services/Get/getClass.dart';
 
 class KullaniciAramaWidget extends StatelessWidget {
   KullaniciAramaWidget(
@@ -12,6 +15,7 @@ class KullaniciAramaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var searchController = Get.find<SearchedUserController>();
     return Container(
       margin: EdgeInsets.only(
         top: 28.h,
@@ -26,6 +30,11 @@ class KullaniciAramaWidget extends StatelessWidget {
       ),
 
       child: TextField(
+        onChanged: (value) async {
+          searchController.isSearching.value = true;
+          await GetServices.getUserFollowerList(value);
+          searchController.isSearching.value = false;
+        },
         controller: controller,
         style: KTextStyle.KHeaderTextStyle(
           fontSize: 10.sp,

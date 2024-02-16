@@ -5,11 +5,24 @@ import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/models/hikayeModel.dart';
 
 import '../consts/colorsUtil.dart';
+import '../services/Get/getClass.dart';
 
-class HikayeWidget extends StatelessWidget {
-  HikayeWidget({super.key, required this.kullaniciHikaye});
+class HikayeWidget extends StatefulWidget {
+  HikayeWidget({super.key, required this.kullaniciHikaye, this.isBold = false});
 
   HikayeModel kullaniciHikaye;
+  bool isBold = false;
+
+  @override
+  State<HikayeWidget> createState() => _HikayeWidgetState();
+}
+
+class _HikayeWidgetState extends State<HikayeWidget> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +32,8 @@ class HikayeWidget extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(3.w),
           margin: EdgeInsets.only(left: 10.w),
-          width: kullaniciHikaye.size?.w ?? 53.w,
-          height: kullaniciHikaye.size?.w ?? 53.w,
+          width: widget.kullaniciHikaye.size?.w ?? 53.w,
+          height: widget.kullaniciHikaye.size?.w ?? 53.w,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100.w),
             border: GradientBoxBorder(
@@ -41,24 +54,31 @@ class HikayeWidget extends StatelessWidget {
               color: KColors.textColorLinearStart.withOpacity(0.4),
               border: Border.all(width: 2.w, color: Colors.transparent),
               borderRadius: BorderRadius.circular(100.w),
-              image: kullaniciHikaye.userImage == ''
-                  ? null
-                  : DecorationImage(
-                      fit: kullaniciHikaye.isCover == false
+              image: widget.kullaniciHikaye.userImage!.contains('assets')
+                  ? DecorationImage(
+                      fit: widget.kullaniciHikaye.isCover == false
                           ? BoxFit.cover
                           : BoxFit.none,
-                      image: NetworkImage(kullaniciHikaye.userImage)),
+                      image: AssetImage(widget.kullaniciHikaye.userImage!),
+                    )
+                  : DecorationImage(
+                      fit: widget.kullaniciHikaye.isCover == false
+                          ? BoxFit.cover
+                          : BoxFit.none,
+                      image: NetworkImage(widget.kullaniciHikaye.userImage!)),
             ),
           ),
         ),
-        kullaniciHikaye.isShowName == true
+        widget.kullaniciHikaye.isShowName == true
             ? Container(
                 margin: EdgeInsets.only(left: 10.w, top: 5.w),
                 child: Text(
-                  kullaniciHikaye.userName,
+                  widget.kullaniciHikaye.userName,
                   style: KTextStyle.KHeaderTextStyle(
                     fontSize: 9.sp,
                     textColor: KColors.textColorMini,
+                    fontWeight:
+                        widget.isBold ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               )

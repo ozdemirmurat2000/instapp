@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:blur/blur.dart';
@@ -6,203 +7,279 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
-import 'package:instapp/controllers/showSecretUserController.dart';
-import 'package:instapp/models/hikayeModel.dart';
-import 'package:instapp/models/userDataModel.dart';
+import 'package:instapp/controllers/searchedUserController.dart';
 import 'package:instapp/screens/homeScreen.dart';
+import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/utils/screenDetails.dart';
-import 'package:instapp/widgets/hikayeWidget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
-class ShowSecretUsersScreen extends StatelessWidget {
-  ShowSecretUsersScreen({super.key, required this.userDataModel});
+import '../models/hikayeModel.dart';
+import '../services/Get/getClass.dart';
+import '../widgets/hikayeWidget.dart';
 
-  UserDataModel userDataModel;
-  List assets = [
-    'assets/images/avatar1.jpg',
-    'assets/images/avatar2.jpg',
-    'assets/images/avatar3.jpg',
-    'assets/images/avatar1.jpg',
-    'assets/images/avatar2.jpg',
-    'assets/images/avatar3.jpg',
-    'assets/images/avatar1.jpg',
-    'assets/images/avatar2.jpg',
-    'assets/images/avatar3.jpg',
-    'assets/images/avatar1.jpg',
-    'assets/images/avatar2.jpg',
-    'assets/images/avatar3.jpg',
+class ShowSecretUsersScreen extends StatefulWidget {
+  ShowSecretUsersScreen({super.key, required this.userName});
+  String userName;
+
+  @override
+  State<ShowSecretUsersScreen> createState() => _ShowSecretUsersScreenState();
+}
+
+class _ShowSecretUsersScreenState extends State<ShowSecretUsersScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    log(widget.userName);
+    fetchUserData();
+  }
+
+  bool isLoad = false;
+
+  List<String> randomImgURL = [
+    'https://img.freepik.com/free-photo/ginger-head-woman-with-colorful-outfit_23-2149441386.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/stylish-red-haired-woman-playing-with-hairs-posing-pink-lien-dress-with-sleeves-pink_273443-4417.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/portrait-young-happy-woman-studio_1303-13799.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/excellent-smiling-beautiful-woman-showing-okay-ok-zero-sign-approve-smth-good-praising-complimenting-beige-background_1258-88115.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/portrait-young-asian-woman_23-2148932865.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/portrait-young-japanese-woman-with-jacket_23-2148870732.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/male-dancer-posing-sneakers-suit-without-shirt_23-2148417931.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/portrait-handsome-confident-model-sexy-stylish-man-dressed-sweater-jeans-fashion-hipster-male-with-curly-hairstyle-posing-near-blue-wall-studio-isolated_158538-26600.jpg?size=626&ext=jpg',
+    'https://img.freepik.com/free-photo/portrait-handsome-fashion-stylish-hipster-model-dressed-warm-red-sweater-posing-studio_158538-11524.jpg?size=626&ext=jpg',
   ];
+
+  Future<bool> fetchUserData() async {
+    await GetServices.fetchPostData(widget.userName);
+
+    setState(() {
+      isLoad = true;
+    });
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    var controller = Get.put(ShowSecretUserController());
+    var userController = Get.put(SearchedUserController());
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: ScreenDetails.appBar(context),
-      body: Obx(
-        () => SingleChildScrollView(
-          physics: !controller.isShow.value
-              ? const NeverScrollableScrollPhysics()
-              : const ScrollPhysics(),
-          child: Column(
-            children: [
-              SizedBox(height: 17.h),
-              Container(
-                alignment: Alignment.center,
-                child: ScreenDetails.divider(context),
-              ),
-
-              // USER AVATAR
-              SizedBox(height: 57.h),
-
-              SizedBox(
-                height: 200.h,
-                width: MediaQuery.of(context).size.width,
-                child: Stack(
-                  alignment: Alignment.center,
+      body: isLoad == false
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Obx(
+              () => SingleChildScrollView(
+                physics: userController.userData.value?.isPrivate ?? false
+                    ? const NeverScrollableScrollPhysics()
+                    : const ScrollPhysics(),
+                child: Column(
                   children: [
-                    Positioned(
-                      top: 40.h,
-                      child: userCard(context),
-                    ),
-                    Positioned(
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 15.0.w),
-                        child: HikayeWidget(
-                          kullaniciHikaye: HikayeModel(
-                              userImage: userDataModel.userImageURL,
-                              userName: userDataModel.userName,
-                              isShowName: false,
-                              size: 80.h),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Obx(
-                () => Stack(
-                  alignment: Alignment.center,
-                  children: [
+                    SizedBox(height: 17.h),
                     Container(
-                      child: Blur(
-                        colorOpacity: controller.isShow.value ? 0 : 0.9,
-                        blur: controller.isShow.value ? 0 : 6,
-                        blurColor: Colors.transparent,
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.only(left: 22.w, bottom: 9.h),
-                              alignment: Alignment.centerLeft,
-                              child: const Text('Gönderiler'),
-                            ),
+                      alignment: Alignment.center,
+                      child: ScreenDetails.divider(context),
+                    ),
 
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 22.w),
-                              child: CustomScrollView(
-                                shrinkWrap: true,
-                                primary: false,
-                                slivers: [
-                                  SliverGrid.builder(
-                                    itemCount: assets.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 7.w,
-                                      mainAxisSpacing: 7.h,
-                                    ),
-                                    itemBuilder: (context, index) =>
-                                        gonderiItem(assets[index]),
-                                  ),
-                                ],
+                    // USER AVATAR
+                    SizedBox(height: 57.h),
+
+                    SizedBox(
+                      height: 200.h,
+                      width: MediaQuery.of(context).size.width,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned(
+                            top: 40.h,
+                            child: userCard(context,
+                                followerCount: userController
+                                        .userData.value?.followerCount ??
+                                    '',
+                                followingCount: userController
+                                        .userData.value?.followedCount ??
+                                    '',
+                                mediaCount:
+                                    userController.userData.value?.mediaCount ??
+                                        '',
+                                fullName:
+                                    userController.userData.value?.fullName ??
+                                        '',
+                                userName:
+                                    userController.userData.value?.userName ??
+                                        ''),
+                          ),
+                          Positioned(
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 15.0.w),
+                              child: HikayeWidget(
+                                kullaniciHikaye: HikayeModel(
+                                    userImage: userController
+                                            .userData.value?.profilePicURL ??
+                                        '',
+                                    userName: userController
+                                            .userData.value?.userName ??
+                                        '',
+                                    isShowName: false,
+                                    size: 80.h),
                               ),
                             ),
-                            SizedBox(height: 9.h),
-                            // GridView.builder(
-                            //   physics: const NeverScrollableScrollPhysics(),
-                            //   scrollDirection: Axis.vertical,
-                            //   shrinkWrap: true,
-                            //   itemCount: assets.length,
-                            //   gridDelegate:
-                            //       SliverGridDelegateWithFixedCrossAxisCount(
-                            //           crossAxisSpacing: 7.h,
-                            //           mainAxisSpacing: 7.w,
-                            //           crossAxisCount: 3),
-                            //   itemBuilder: (context, index) =>
-                            //       gonderiItem(assets[index]),
-                            // )
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    controller.isShow.value
-                        ? const SizedBox()
-                        : Positioned.fill(
-                            top: 100.w,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Colors.black,
+                    SizedBox(height: 10.h),
+                    Obx(
+                      () => Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          userController.userData.value?.mediaCount == '0'
+                              ? Container(
+                                  child: const Text(
+                                      'Kullanicinin medyasi bulunmamaktadir'),
+                                )
+                              : SizedBox(
+                                  height: MediaQuery.of(context).size.height,
+                                  child: Blur(
+                                    colorOpacity: userController
+                                                .userPremiumStatus
+                                                .value
+                                                .isPremium ==
+                                            1
+                                        ? 0
+                                        : 0.9,
+                                    blur: userController.userPremiumStatus.value
+                                                .isPremium ==
+                                            1
+                                        ? 0
+                                        : 6,
+                                    blurColor: Colors.transparent,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              left: 22.w, bottom: 9.h),
+                                          alignment: Alignment.centerLeft,
+                                          child: const Text('Gönderiler'),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 22.w),
+                                          child: CustomScrollView(
+                                            shrinkWrap: true,
+                                            primary: false,
+                                            slivers: [
+                                              SliverGrid.builder(
+                                                itemCount: userController
+                                                        .userPosts.isEmpty
+                                                    ? 9
+                                                    : userController
+                                                        .userPosts.length,
+                                                gridDelegate:
+                                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 3,
+                                                  crossAxisSpacing: 7.w,
+                                                  mainAxisSpacing: 7.h,
+                                                ),
+                                                itemBuilder: (context, index) =>
+                                                    userController
+                                                            .userPosts.isEmpty
+                                                        ? gonderiItem(
+                                                            randomImgURL[index])
+                                                        : gonderiItem(
+                                                            userController
+                                                                    .userPosts[
+                                                                index]),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Image.asset('assets/icons/lock.png'),
                                 ),
-                                SizedBox(height: 9.h),
-                                GradientText(
-                                  'Gizli Profilleri Gör',
-                                  colors: [
-                                    KColors.textColorLinearStart,
-                                    KColors.textColorLinearMiddle,
-                                    KColors.textColorLinearEnd,
-                                  ],
-                                  style: KTextStyle.KHeaderTextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                Text(
-                                  'Gizli profilleri anonim olarak görüntüle!',
-                                  style: KTextStyle.KHeaderTextStyle(
-                                      fontSize: 10.sp),
-                                ),
-                                SizedBox(height: 19.h),
-                                GestureDetector(
-                                  onTap: () {
-                                    controller.isShow.value = true;
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    width: 330.w,
-                                    height: 70.h,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
+                          userController.userPremiumStatus.value.isPremium == 1
+                              ? const SizedBox()
+                              : Positioned(
+                                  top: 100.w,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          color: Colors.black,
+                                        ),
+                                        child: Image.asset(
+                                            'assets/icons/lock.png'),
+                                      ),
+                                      SizedBox(height: 9.h),
+                                      GradientText(
+                                        'Gizli Profilleri Gör',
                                         colors: [
                                           KColors.textColorLinearStart,
                                           KColors.textColorLinearMiddle,
                                           KColors.textColorLinearEnd,
                                         ],
+                                        style: KTextStyle.KHeaderTextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      'Profili Gör',
-                                      style: KTextStyle.KHeaderTextStyle(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w800),
-                                    ),
+                                      Text(
+                                        userController.userPremiumStatus.value
+                                                    .isPremium ==
+                                                0
+                                            ? 'Sadece Vip üyeler bu özelliği kullanabilir.'
+                                            : 'Gizli profilleri anonim olarak görüntüle!',
+                                        style: KTextStyle.KHeaderTextStyle(
+                                            fontSize: 10.sp),
+                                      ),
+                                      SizedBox(height: 19.h),
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (userController.userPremiumStatus
+                                                  .value.isPremium ==
+                                              0) {
+                                            Get.to(() => PremiumScreen());
+                                          }
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: 330.w,
+                                          height: 70.h,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                KColors.textColorLinearStart,
+                                                KColors.textColorLinearMiddle,
+                                                KColors.textColorLinearEnd,
+                                              ],
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            userController.userPremiumStatus
+                                                        .value.isPremium ==
+                                                    0
+                                                ? 'Vip üye ol'
+                                                : 'Profili Gör',
+                                            style: KTextStyle.KHeaderTextStyle(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w800),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          )
+                                )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -212,20 +289,23 @@ class ShowSecretUsersScreen extends StatelessWidget {
       height: 105.w,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        image: DecorationImage(image: AssetImage(imageURL), fit: BoxFit.cover),
+        image:
+            DecorationImage(image: NetworkImage(imageURL), fit: BoxFit.cover),
       ),
     );
   }
 
-  Container userCard(BuildContext context) {
+  Container userCard(BuildContext context,
+      {required String fullName,
+      required String userName,
+      required String followerCount,
+      required String followingCount,
+      required String mediaCount}) {
     return Container(
       width: 330.w,
       padding: EdgeInsets.only(top: 45.h),
       height: 146.h,
-      margin: EdgeInsets.only(
-        left: 23.w,
-        right: 22.w,
-      ),
+      margin: EdgeInsets.only(left: 23.w, right: 22.w, top: 10.h),
       decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -240,14 +320,14 @@ class ShowSecretUsersScreen extends StatelessWidget {
           Column(
             children: [
               Text(
-                userDataModel.userNameSurname,
+                fullName,
                 style: KTextStyle.KHeaderTextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
-                '@${userDataModel.userName}',
+                '@$userName',
                 style: KTextStyle.KHeaderTextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w500,
@@ -267,17 +347,14 @@ class ShowSecretUsersScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                buildUserInfo(
-                  'Takipçi',
-                  userDataModel.userFollowers,
-                ),
+                buildUserInfo('Takipçi', followerCount),
                 buildUserInfo(
                   'Takip edilen',
-                  userDataModel.userFollowed,
+                  followingCount,
                 ),
                 buildUserInfo(
                   'Gönderi',
-                  userDataModel.media_count,
+                  mediaCount,
                 ),
               ],
             ),

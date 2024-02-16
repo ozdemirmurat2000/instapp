@@ -57,9 +57,10 @@ class ScreenDetails {
 
   static AppBar appBar(BuildContext context) {
     return AppBar(
+      scrolledUnderElevation: 0,
       centerTitle: true,
       title: Padding(
-        padding: EdgeInsets.only(top: 17.h),
+        padding: EdgeInsets.only(bottom: 17.h),
         child: logo(context),
       ),
       leadingWidth: 70.w,
@@ -70,7 +71,7 @@ class ScreenDetails {
           Get.back();
         },
         child: Container(
-          margin: EdgeInsets.only(left: 23.w, top: 17.h),
+          margin: EdgeInsets.only(left: 23.w, bottom: 17.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100.w),
             gradient: LinearGradient(

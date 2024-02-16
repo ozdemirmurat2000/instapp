@@ -1,6 +1,6 @@
 class HikayeModel {
   String userName;
-  String userImage;
+  String? userImage;
   bool? isView;
   double? size;
   bool isCover;
