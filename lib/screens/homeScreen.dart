@@ -14,12 +14,14 @@ import 'package:instapp/models/storyModel.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/screens/hdGoruntuleScreen.dart';
 import 'package:instapp/screens/premiumScreen.dart';
+import 'package:instapp/screens/searcUserHistoryScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
 import 'package:instapp/screens/settingScreen.dart';
 import 'package:instapp/screens/storyScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:instapp/widgets/showDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:story_view/story_view.dart';
@@ -78,6 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     startService();
+
+    Future.delayed(const Duration(seconds: 30), () {
+      showMyDialog(context);
+    });
   }
 
   startService() async {
@@ -133,13 +139,17 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: InkWell(
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
-              onTap: () {
-                Get.to(SettingScreen(
-                  userFullName: controller.userDataModel.value.userNameSurname,
-                  userImageUrl: controller.userDataModel.value.userImageURL,
-                  userName: controller.userDataModel.value.userName,
-                ));
-              },
+              onTap: controller.loginStatus.value == false
+                  ? null
+                  : () {
+                      Get.to(SettingScreen(
+                        userFullName:
+                            controller.userDataModel.value.userNameSurname,
+                        userImageUrl:
+                            controller.userDataModel.value.userImageURL,
+                        userName: controller.userDataModel.value.userName,
+                      ));
+                    },
               child: MyUtils.maskIcon(Iconsax.setting_25, 24),
             ),
 
@@ -148,11 +158,13 @@ class _HomeScreenState extends State<HomeScreen> {
               InkWell(
                 highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
-                onTap: () {
-                  Get.to(
-                    PremiumScreen(),
-                  );
-                },
+                onTap: controller.loginStatus.value == false
+                    ? null
+                    : () {
+                        Get.to(
+                          PremiumScreen(),
+                        );
+                      },
                 child: Padding(
                   padding: EdgeInsets.only(right: 30.0.w),
                   child: MyUtils.maskIcon(Iconsax.cup5, 24,
@@ -206,7 +218,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       CardWidgetDefault(
-                        onTap: () {},
+                        onTap: () {
+                          Get.to(() => const SearchUserHistoryScreen());
+                        },
                         kartDetay: kartDetay1,
                       ),
                       CardWidgetDefault(

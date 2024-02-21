@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -36,13 +37,18 @@ class _StoryScreenState extends State<StoryScreen> {
       if (userStoryController.userStories.value.userStory != null) {
         for (var element in userStoryController.userStories.value.userStory!) {
           stories.add(
-            StoryItem.pageVideo(
-              element['url'],
-              controller: controller,
-              duration: Duration(
-                seconds: element['duration'],
-              ),
-            ),
+            element.containsKey('duration')
+                ? StoryItem.pageVideo(
+                    element['url'],
+                    controller: controller,
+                    duration: Duration(
+                      seconds: element['duration'],
+                    ),
+                  )
+                : StoryItem.pageImage(
+                    url: element['image_url'],
+                    controller: controller,
+                  ),
           );
         }
       }

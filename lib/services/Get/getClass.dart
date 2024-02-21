@@ -462,6 +462,12 @@ class GetServices {
           log('HIKAYELER GETIRILDI');
           var json = jsonDecode(response.body);
           var newJson = await json["reel"]['items'];
+
+          if (newJson.toString().contains("image_versions2")) {
+            log('true');
+          }
+
+          // log(jsonEncode(newJson));
           controllerStory.userStories.value = UserStoryDataModel();
 
           controllerStory.userStories.value =

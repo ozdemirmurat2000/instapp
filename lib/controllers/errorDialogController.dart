@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instapp/screens/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ErrorDialogs extends GetxController {
   static void gosterHataDialogi() {
+    var controller = WebViewController().obs;
+
     Get.defaultDialog(
       title: "Hata",
       content: const Text('Lutfen tekrar giris yapin'),
@@ -31,6 +34,8 @@ class ErrorDialogs extends GetxController {
         await prefs.setBool('followers_data_status', saveFollowersStatus);
         await prefs.setString('following_data_time', saveFollowingDataTime);
         await prefs.setString('followers_data_time', saveFollowersDataTime);
+        await controller.value.clearLocalStorage();
+        await controller.value.clearCache();
         Get.offAll(
           const SplashScreen(),
         );

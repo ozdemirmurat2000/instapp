@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/searchedUserController.dart';
 import 'package:instapp/models/searchedUserModel.dart';
+import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../widgets/showDialog.dart';
 import 'showSecretUsersScreen.dart';
 
-class SecretSearchScreen extends StatefulWidget {
-  const SecretSearchScreen({super.key});
+class SearchUserHistoryScreen extends StatefulWidget {
+  const SearchUserHistoryScreen({super.key});
 
   @override
-  State<SecretSearchScreen> createState() => _SecretSearchScreenState();
+  State<SearchUserHistoryScreen> createState() =>
+      _SearchUserHistoryScreenState();
 }
 
-class _SecretSearchScreenState extends State<SecretSearchScreen> {
+class _SearchUserHistoryScreenState extends State<SearchUserHistoryScreen> {
   @override
   void initState() {
     // TODO: implement initState
@@ -63,36 +69,47 @@ class _SecretSearchScreenState extends State<SecretSearchScreen> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 21.h),
+                  Container(
+                    margin: EdgeInsets.only(top: 11.h, bottom: 8.h),
+                    padding: EdgeInsets.all(13.h),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        gradient: LinearGradient(
+                          colors: [
+                            KColors.textColorLinearStart.withOpacity(0.1),
+                            KColors.textColorLinearMiddle.withOpacity(0.1),
+                            KColors.textColorLinearEnd.withOpacity(0.1),
+                          ],
+                        )),
+                    child: MyUtils.maskIcon(Iconsax.ghost5, 30.h),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(
+                      bottom: 15.h,
+                    ),
                     child: Column(
                       children: [
-                        Text(
-                          'Gizli Profilleri Görüntüle',
+                        GradientText(
+                          'Hikayeleri Gizli İzle',
+                          colors: [
+                            KColors.textColorLinearStart,
+                            KColors.textColorLinearMiddle,
+                            KColors.textColorLinearEnd,
+                          ],
                           style: KTextStyle.KHeaderTextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
-                            textColor: KColors.textYellowColor,
                           ),
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          'Gizli profilleri anonim olarak görüntüle!',
+                          'Hikayeleri karşı tarafın haberi olmadan izle!',
                           style: KTextStyle.KHeaderTextStyle(
                             fontSize: 10.sp,
                             textColor: KColors.textColorMini,
                           ),
-                        ),
+                        )
                       ],
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.only(top: 28.h, left: 53.w, right: 52.65.w),
-                    child: Image.asset(
-                      'assets/images/kullaniciAraBackGround.png',
-                      width: 269.w,
-                      height: 145.h,
                     ),
                   ),
                   Padding(
@@ -140,12 +157,7 @@ class AramaSonucKullanici extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        controller.userData.value = null;
-        Get.to(ShowSecretUsersScreen(
-          userName: user.username ?? '',
-        ));
-      },
+      onTap: () {},
       child: Padding(
         padding: EdgeInsets.only(
           right: 22.w,
