@@ -6,16 +6,17 @@ import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/utils/iconGradient.dart';
 
 class CardWidgetMulti extends StatelessWidget {
-  CardWidgetMulti({
-    super.key,
-    required this.leftIcon,
-    required this.leftText,
-    required this.leftValueText,
-    required this.rightIcon,
-    required this.rightText,
-    required this.rightValueText,
-    this.widget,
-  });
+  CardWidgetMulti(
+      {super.key,
+      required this.leftIcon,
+      required this.leftText,
+      required this.leftValueText,
+      required this.rightIcon,
+      required this.rightText,
+      required this.rightValueText,
+      this.widget,
+      required this.leftOnTap,
+      required this.rightOnTap});
 
   String leftText;
   String leftValueText;
@@ -24,6 +25,9 @@ class CardWidgetMulti extends StatelessWidget {
   String rightValueText;
   IconData rightIcon;
   Widget? widget;
+
+  void Function() leftOnTap;
+  void Function() rightOnTap;
 
   @override
   Widget build(BuildContext context) {
@@ -40,40 +44,39 @@ class CardWidgetMulti extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.w),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // LEFT DETAIL
-          Row(
-            children: [
-              // ICON
+          GestureDetector(
+            onTap: leftOnTap,
+            child: Row(
+              children: [
+                // ICON
 
-              Container(
-                margin: EdgeInsets.only(
-                  bottom: 21.h,
-                  left: 12.w,
-                  right: 12.w,
-                  top: 21.h,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      KColors.textColorLinearStart.withOpacity(0.1),
-                      KColors.textColorLinearMiddle.withOpacity(0.1),
-                      KColors.textColorLinearEnd.withOpacity(0.1),
-                    ],
+                Container(
+                  margin: EdgeInsets.only(
+                    left: 12.w,
+                    right: 12.w,
                   ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        KColors.textColorLinearStart.withOpacity(0.1),
+                        KColors.textColorLinearMiddle.withOpacity(0.1),
+                        KColors.textColorLinearEnd.withOpacity(0.1),
+                      ],
+                    ),
+                  ),
+                  padding: EdgeInsets.all(10.w),
+                  child: widget ?? MyUtils.maskIcon(leftIcon, 24),
                 ),
-                padding: EdgeInsets.all(10.w),
-                child: widget ?? MyUtils.maskIcon(leftIcon, 24),
-              ),
 
-              Padding(
-                padding: EdgeInsets.only(top: 25.0.w, bottom: 25.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // BASLIK
@@ -95,9 +98,9 @@ class CardWidgetMulti extends StatelessWidget {
                           textColor: Colors.white,
                         )),
                   ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
           Container(
             width: 1,
@@ -106,63 +109,63 @@ class CardWidgetMulti extends StatelessWidget {
           ),
           // RIGHT DETAIL
 
-          Row(
-            children: [
-              // ICON
+          GestureDetector(
+            onTap: rightOnTap,
+            child: Row(
+              children: [
+                // ICON
 
-              Container(
-                margin: EdgeInsets.only(
-                  bottom: 21.h,
-                  right: 12.w,
-                  top: 21.h,
+                Container(
+                  margin: EdgeInsets.only(
+                    right: 12.w,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        KColors.textColorLinearStart.withOpacity(0.1),
+                        KColors.textColorLinearMiddle.withOpacity(0.1),
+                        KColors.textColorLinearEnd.withOpacity(0.1),
+                      ],
+                    ),
+                  ),
+                  padding: EdgeInsets.all(10.w),
+                  child: MyUtils.maskIcon(rightIcon, 24),
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      KColors.textColorLinearStart.withOpacity(0.1),
-                      KColors.textColorLinearMiddle.withOpacity(0.1),
-                      KColors.textColorLinearEnd.withOpacity(0.1),
+
+                Padding(
+                  padding: EdgeInsets.only(right: 12.0.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // BASLIK
+                      Text(
+                        int.parse(rightValueText) > 0
+                            ? '-$rightValueText'
+                            : rightValueText,
+                        style: KTextStyle.KHeaderTextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          textColor: const Color(0xFFCE2828),
+                        ),
+                      ),
+
+                      // BASLIK ACIKLAMA
+
+                      Text(rightText,
+                          style: KTextStyle.KHeaderTextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                            textColor: Colors.white,
+                          )),
                     ],
                   ),
-                ),
-                padding: EdgeInsets.all(10.w),
-                child: MyUtils.maskIcon(rightIcon, 24),
-              ),
-
-              Padding(
-                padding:
-                    EdgeInsets.only(top: 25.0.w, bottom: 25.w, right: 14.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // BASLIK
-                    Text(
-                      int.parse(rightValueText) > 0
-                          ? '-$rightValueText'
-                          : rightValueText,
-                      style: KTextStyle.KHeaderTextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        textColor: const Color(0xFFCE2828),
-                      ),
-                    ),
-
-                    // BASLIK ACIKLAMA
-
-                    Text(rightText,
-                        style: KTextStyle.KHeaderTextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          textColor: Colors.white,
-                        )),
-                  ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ],
       ),

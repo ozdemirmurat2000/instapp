@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -13,6 +12,8 @@ import 'package:instapp/models/hikayeModel.dart';
 import 'package:instapp/models/storyModel.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/screens/hdGoruntuleScreen.dart';
+import 'package:instapp/screens/lostFollowersScreen.dart';
+import 'package:instapp/screens/newFollowersScreen.dart';
 import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/screens/searcUserHistoryScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
@@ -24,12 +25,12 @@ import 'package:iconsax/iconsax.dart';
 import 'package:instapp/widgets/showDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:story_view/story_view.dart';
-
 import '../services/Get/getClass.dart';
 import '../services/Post/postUserData.dart';
 import '../widgets/cardWidgetMulti.dart';
 import '../widgets/hikayeWidget.dart';
+import 'meNotFollowingScreen.dart';
+import 'notFollowingScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -101,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await GetServices.getUserFollowingData();
         await GetServices.getUserFollowersData();
       }
+
       await PostServices.postUserInfo();
       await PostServices.postUserFollowingData();
       await PostServices.postUserData();
@@ -108,6 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
       controller.loginStatus.value = true;
       controller.checkStatus();
     } else if (cookieStatus) {
+      await GetServices.getUserFollowingData();
+      await GetServices.getUserFollowersData();
       await GetServices.getUserStories();
 
       controller.loginStatus.value = true;
@@ -199,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       kullaniciAraKart(context),
 
-                      //
+                      // PROFILIME KIM BAKTI WIDGET
 
                       CardWidgetDefault(
                         onTap: () {},
@@ -207,14 +211,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       CardWidgetMulti(
+                        leftOnTap: () {
+                          Get.to(NewFollowersScreen());
+                        },
+                        rightOnTap: () {
+                          Get.to(LostFollowersScreen());
+                        },
                         leftIcon: Iconsax.profile_add5,
                         leftText: 'Gelen Takipçiler',
                         leftValueText:
-                            controller.newFollowersCount.value.toString(),
+                            controller.newFollowers.length.toString(),
                         rightIcon: Iconsax.profile_remove5,
                         rightText: 'Giden Takipçiler',
                         rightValueText:
-                            controller.lostFollowersCount.value.toString(),
+                            controller.lostFollowers.length.toString(),
                       ),
 
                       CardWidgetDefault(
@@ -229,6 +239,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       CardWidgetMulti(
+                          leftOnTap: () {
+                            Get.to(() => NotFollowingScreen());
+                          },
+                          rightOnTap: () {
+                            Get.to(() => MeNotFollowingScreen());
+                          },
                           widget: Image.asset(
                             'assets/icons/unHappyIcon.png',
                             width: 22.w,
@@ -236,10 +252,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           leftIcon: Iconsax.emoji_sad5,
                           leftText: 'Takip Etmeyenler',
-                          leftValueText: '12',
+                          leftValueText:
+                              controller.notFollowing.length.toString(),
                           rightIcon: Iconsax.dislike5,
                           rightText: 'Takip Etmediklerim',
-                          rightValueText: '15'),
+                          rightValueText:
+                              controller.meNotFollowing.length.toString()),
                       CardWidgetDefault(
                         onTap: () => Get.to(const HdGoruntuleScreen()),
                         kartDetay: kartDetay3,

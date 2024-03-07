@@ -27,14 +27,14 @@ class _StoryScreenState extends State<StoryScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchData();
+    fetchData(widget.userId);
   }
 
-  Future<bool> fetchData() async {
+  Future<bool> fetchData(String userID) async {
     try {
-      await GetServices.fetchUserStory(widget.userId);
+      bool isStory = await GetServices.fetchUserStory(userID);
 
-      if (userStoryController.userStories.value.userStory != null) {
+      if (isStory) {
         for (var element in userStoryController.userStories.value.userStory!) {
           stories.add(
             element.containsKey('duration')
@@ -51,6 +51,14 @@ class _StoryScreenState extends State<StoryScreen> {
                   ),
           );
         }
+        setState(() {
+          isStoryA = isStory;
+        });
+      } else {
+        setState(() {
+          isStoryA = isStory;
+        });
+        log('hikaye bulunamadi');
       }
 
       setState(() {
@@ -64,12 +72,14 @@ class _StoryScreenState extends State<StoryScreen> {
     }
   }
 
+  bool isStoryA = false;
   bool isLoading = false;
   var userStoryController = Get.find<UserStoriesController>();
   List<StoryItem> stories = [];
 
   @override
   Widget build(BuildContext context) {
+    log(stories.length.toString());
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: ScreenDetails.appBar(context),
@@ -82,11 +92,11 @@ class _StoryScreenState extends State<StoryScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     textAlign: TextAlign.center,
-                    'Suan Kullanicinin Hikayeleri Gosteremiyoruz.',
+                    'Suan bu kullanicinin Hikayeleri Gosteremiyoruz.',
                     style: KTextStyle.KHeaderTextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
-                        textColor: Colors.black),
+                        textColor: Colors.white),
                   ),
                 )
               : StoryView(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +9,8 @@ import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/searchedUserController.dart';
 import 'package:instapp/models/searchedUserModel.dart';
+import 'package:instapp/screens/storyScreen.dart';
+import 'package:instapp/services/Get/getClass.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
@@ -157,7 +161,10 @@ class AramaSonucKullanici extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        log(user.username ?? '');
+        Get.to(() => StoryScreen(userId: user.pkId ?? ''));
+      },
       child: Padding(
         padding: EdgeInsets.only(
           right: 22.w,

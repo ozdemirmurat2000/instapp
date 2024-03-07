@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:instapp/screens/premiumScreen.dart';
 import 'package:instapp/utils/iconGradient.dart';
 
 import '../consts/colorsUtil.dart';
@@ -55,7 +56,7 @@ class ScreenDetails {
     );
   }
 
-  static AppBar appBar(BuildContext context) {
+  static AppBar appBar(BuildContext context, {bool showCup = false}) {
     return AppBar(
       scrolledUnderElevation: 0,
       centerTitle: true,
@@ -63,6 +64,22 @@ class ScreenDetails {
         padding: EdgeInsets.only(bottom: 17.h),
         child: logo(context),
       ),
+      actions: [
+        showCup
+            ? GestureDetector(
+                onTap: () {
+                  Get.to(PremiumScreen());
+                },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 15.h, right: 22.w),
+                  child: const Icon(
+                    Iconsax.cup5,
+                    color: Color(0xFFFFC700),
+                  ),
+                ),
+              )
+            : const SizedBox()
+      ],
       leadingWidth: 70.w,
       toolbarHeight: 70.h,
       backgroundColor: Colors.transparent,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -102,6 +103,7 @@ class GetServices {
         });
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
+
           if (data.containsKey("status") && data["status"] == "fail") {
           } else {
             OneSignal.login(
@@ -149,9 +151,8 @@ class GetServices {
   static Future getUserFollowingData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool cookieStatus = prefs.getBool('cookie_status') ?? false;
-    bool followingDataStatus = prefs.getBool('following_data_status') ?? false;
 
-    if (cookieStatus == true && followingDataStatus == false) {
+    if (cookieStatus == true) {
       String instagramId = prefs.getString('ds_user_id')!;
       String csrftoken = prefs.getString('csrftoken')!;
       String sessionId = prefs.getString('sessionid')!;
@@ -177,17 +178,31 @@ class GetServices {
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
           List users = data['users'];
+          bool status = prefs.getBool('following_data_status') ?? false;
 
-          await prefs.setString('current_following_data', jsonEncode(users));
-          await prefs.setBool('following_data_status', true);
+          if (status) {
+            log('yeni takip ettiklerimin listesi alindi');
+            await prefs.setString("new_following_data", jsonEncode(users));
+            var tarih = DateTime.now();
+            await prefs.setInt(
+                'following_data_time', tarih.millisecondsSinceEpoch);
+          } else {
+            try {
+              log('ilk takip ettiklerimin listesi alindi');
 
-          var tarih = DateTime.now();
-
-          var formatter = DateFormat('dd/MM/yyyy - HH:mm');
-          prefs.setString('following_data_time', formatter.format(tarih));
+              await prefs.setString("new_following_data", jsonEncode(users));
+              await prefs.setString(
+                  'current_following_data', jsonEncode(users));
+              await prefs.setBool('following_data_status', true);
+              var tarih = DateTime.now();
+              await prefs.setInt(
+                  'following_data_time', tarih.millisecondsSinceEpoch);
+            } catch (e) {
+              log(e.toString());
+            }
+          }
 
           log('FETCH USER FOLLOWING TAMAMLANDI');
-          log('${users.length}');
 
           return true;
         } else {
@@ -209,9 +224,8 @@ class GetServices {
   static Future getUserFollowersData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool cookieStatus = prefs.getBool('cookie_status') ?? false;
-    bool followersDataStatus = prefs.getBool('followers_data_status') ?? false;
 
-    if (cookieStatus == true && followersDataStatus == false) {
+    if (cookieStatus == true) {
       String? instagramId = prefs.getString('ds_user_id');
       String? csrftoken = prefs.getString('csrftoken');
       String? sessionId = prefs.getString('sessionid');
@@ -236,14 +250,29 @@ class GetServices {
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
           List users = data['users'];
+          bool status = prefs.getBool('followers_data_status') ?? false;
+          if (status) {
+            await prefs.setString("new_followers_data", jsonEncode(users));
+            var tarih = DateTime.now();
+            log('yeni takipcilerimin listesi alindi');
 
-          await prefs.setString('current_followers_data', jsonEncode(users));
-          await prefs.setBool('followers_data_status', true);
+            await prefs.setInt(
+                'followers_data_time', tarih.millisecondsSinceEpoch);
+          } else {
+            try {
+              log('ilk takipcilerimin listesi alindi');
 
-          var tarih = DateTime.now();
-
-          var formatter = DateFormat('dd/MM/yyyy - HH:mm');
-          await prefs.setString('followers_data_time', formatter.format(tarih));
+              await prefs.setString(
+                  'current_followers_data', jsonEncode(users));
+              await prefs.setString("new_followers_data", jsonEncode(users));
+              await prefs.setBool('followers_data_status', true);
+              var tarih = DateTime.now();
+              await prefs.setInt(
+                  'followers_data_time', tarih.millisecondsSinceEpoch);
+            } catch (e) {
+              log(e.toString());
+            }
+          }
 
           log('FETCH USER FOLLOWERS TAMAMLANDI');
 
@@ -303,7 +332,6 @@ class GetServices {
         }
       } catch (e) {
         log('bir hata olustu ===+==> $e');
-        ErrorDialogs.gosterHataDialogi();
       }
     }
   }
@@ -320,7 +348,6 @@ class GetServices {
 
     if (cookieStatus == true) {
       String? instagramId = prefs.getString('ds_user_id');
-      String? csrftoken = prefs.getString('csrftoken');
       String? sessionId = prefs.getString('sessionid');
       String url;
       url =
@@ -348,11 +375,11 @@ class GetServices {
           return true;
         } else {
           log('${response.statusCode} > ${response.body}');
-          // ErrorDialogs.gosterHataDialogi();
+          ErrorDialogs.gosterHataDialogi();
         }
       } catch (e) {
         log('bir hata olustu ===+==> $e');
-        // ErrorDialogs.gosterHataDialogi();
+        ErrorDialogs.gosterHataDialogi();
       }
     }
   }
@@ -383,16 +410,14 @@ class GetServices {
           controller.userData.value =
               UserFollowerDataModel.fromJson(jsonEncode(jsonList));
 
-          log('${controller.userData.value?.isPrivate}');
-
           return true;
         } else {
           log('${response.statusCode} > ${response.body}');
-          // ErrorDialogs.gosterHataDialogi();
+          ErrorDialogs.gosterHataDialogi();
         }
       } catch (e) {
         log('kullanici takipci listesi alinca bir hata olustu ===+==> $e');
-        // ErrorDialogs.gosterHataDialogi();
+        ErrorDialogs.gosterHataDialogi();
       }
     }
   }
@@ -433,6 +458,8 @@ class GetServices {
         }
       } catch (e) {
         log(' KULLANICI POST POST ALINIRKEN BIR HATA OLUSTU $e');
+        fetchPostData(username);
+
         return false;
       }
     }
@@ -440,7 +467,7 @@ class GetServices {
     return true;
   }
 
-  static Future fetchUserStory(String userID) async {
+  static Future<bool> fetchUserStory(String userID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var controllerStory = Get.put(UserStoriesController());
 
@@ -463,10 +490,6 @@ class GetServices {
           var json = jsonDecode(response.body);
           var newJson = await json["reel"]['items'];
 
-          if (newJson.toString().contains("image_versions2")) {
-            log('true');
-          }
-
           // log(jsonEncode(newJson));
           controllerStory.userStories.value = UserStoryDataModel();
 
@@ -475,13 +498,20 @@ class GetServices {
 
           return true;
         } else {
-          log('${response.statusCode} > ${response.body}');
+          log("hikayede bir hata var ${response.body}");
+          if (response.statusCode != 404) {
+            ErrorDialogs.gosterHataDialogi();
+          }
+
           return false;
         }
       } catch (e) {
         log('bir hata olustu ===+==> $e');
         return false;
       }
+    } else {
+      log("fetch userde hata oldu");
+      return false;
     }
   }
 }

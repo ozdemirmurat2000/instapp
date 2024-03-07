@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/models/userFollowersModel.dart';
 import 'package:instapp/models/userFollowingModel.dart';
-import 'package:instapp/screens/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -17,14 +16,15 @@ class LoginStatusController extends GetxController {
   var controller = WebViewController().obs;
 
   var userDataModel = UserDataModel().obs;
-  RxList<UserFollowersModel> userFollowersList = <UserFollowersModel>[].obs;
-  RxList<UserFollowingModel> userFollowingList = <UserFollowingModel>[].obs;
+  RxList<UserFollowersModel> newFollowers = <UserFollowersModel>[].obs;
+  RxList<UserFollowersModel> lostFollowers = <UserFollowersModel>[].obs;
 
-  RxInt newFollowersCount = 0.obs;
-  RxInt lostFollowersCount = 0.obs;
+  // Takip etmeyenler
 
-  RxList unFollowing = [].obs;
-  RxList unFollowers = [].obs;
+  RxList<UserFollowingModel> notFollowing = <UserFollowingModel>[].obs;
+  // Takip etmediklerim
+
+  RxList<UserFollowersModel> meNotFollowing = <UserFollowersModel>[].obs;
 
   Future checkStatus() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -35,34 +35,77 @@ class LoginStatusController extends GetxController {
     userDataModel.value.userFollowers = pref.getString('follower_count') ?? '';
     userDataModel.value.userFollowed = pref.getString('following_count') ?? '';
     userDataModel.value.userImageURL = pref.getString('profile_pic_url') ?? '';
-    String dataFolowing = pref.getString('current_following_data') ?? '';
     String dataFolowers = pref.getString('current_followers_data') ?? '';
-    final followingList = jsonDecode(dataFolowing) as List<dynamic>;
+    String newDataFolowing = pref.getString('new_following_data') ?? '';
+    String newDataFolowers = pref.getString('new_followers_data') ?? '';
     final followersList = jsonDecode(dataFolowers) as List<dynamic>;
+    final newFollowingList = jsonDecode(newDataFolowing) as List<dynamic>;
+    final newFollowersList = jsonDecode(newDataFolowers) as List<dynamic>;
 
-    final userFollowingModel =
-        followingList.map((item) => UserFollowingModel.fromJson(item)).toList();
+    log(pref.getString('follower_count') ?? '');
+
     final userFollowersModel =
         followersList.map((item) => UserFollowersModel.fromJson(item)).toList();
+    final newUserFollowingModel = newFollowingList
+        .map((item) => UserFollowingModel.fromJson(item))
+        .toList();
+    final newUserFollowersModel = newFollowersList
+        .map((item) => UserFollowersModel.fromJson(item))
+        .toList();
 
-    userFollowersList.value = userFollowersModel;
-    userFollowingList.value = userFollowingModel;
+    bool checkFollowers =
+        newUserFollowersModel.length > userFollowersModel.length ? true : false;
 
-    if (int.parse(userDataModel.value.userFollowers) >
-        userFollowersModel.length) {
-      newFollowersCount.value = int.parse(userDataModel.value.userFollowers) -
-          userFollowersModel.length;
-    } else {
-      lostFollowersCount.value = userFollowersModel.length -
-          int.parse(userDataModel.value.userFollowers);
+    for (var element
+        in checkFollowers ? newUserFollowersModel : userFollowersModel) {
+      bool isHave = false;
+
+      for (var el
+          in checkFollowers ? newUserFollowersModel : userFollowersModel) {
+        if (element.pkId == el.pkId) {
+          isHave = true;
+          break;
+        }
+      }
+      if (!isHave) {
+        if (checkFollowers) {
+          newFollowers.add(element);
+        } else {
+          lostFollowers.add(element);
+        }
+      }
     }
 
-    List<String?> kullaniciAdlari1 =
-        userFollowersList.map((user) => user.username).toList();
-    Set<String?> kullaniciAdlari2 =
-        userFollowingModel.map((user) => user.username).toSet();
+    // TAKIP ETMEYENLERI KONTROL ET
 
-    log('${kullaniciAdlari1.length}');
+    for (var element in newUserFollowingModel) {
+      bool isHave = false;
+      for (var el in newUserFollowersModel) {
+        if (element.pkId == el.pkId) {
+          isHave = true;
+          break;
+        }
+      }
+
+      if (!isHave) {
+        notFollowing.add(element);
+      }
+    }
+    log(notFollowing.length.toString());
+    for (var element in newUserFollowersModel) {
+      bool isHave = false;
+
+      for (var el in newUserFollowingModel) {
+        if (element.username == el.username) {
+          isHave = true;
+          break;
+        }
+      }
+
+      if (!isHave) {
+        meNotFollowing.add(element);
+      }
+    }
   }
 
   Future<bool> logOutAndDeleteAccount(bool isExit) async {
@@ -75,17 +118,12 @@ class LoginStatusController extends GetxController {
           prefs.getString('following_data_time') ?? '';
       String saveFollowersDataTime =
           prefs.getString('followers_data_time') ?? '';
-      bool saveFollowingStatus =
-          prefs.getBool('following_data_status') ?? false;
-      bool saveFollowersStatus =
-          prefs.getBool('followers_data_status') ?? false;
+
       await prefs.clear();
       await prefs.setString('device_id', saveDeviceID);
 
       await prefs.setString('current_following_data', saveFollowing);
       await prefs.setString('current_followers_data', saveFollowers);
-      await prefs.setBool('following_data_status', saveFollowingStatus);
-      await prefs.setBool('followers_data_status', saveFollowersStatus);
       await prefs.setString('following_data_time', saveFollowingDataTime);
       await prefs.setString('followers_data_time', saveFollowersDataTime);
       final cookieManager = WebviewCookieManager();
