@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -10,14 +9,10 @@ import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/searchedUserController.dart';
 import 'package:instapp/models/searchedUserModel.dart';
 import 'package:instapp/screens/storyScreen.dart';
-import 'package:instapp/services/Get/getClass.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-
-import '../widgets/showDialog.dart';
-import 'showSecretUsersScreen.dart';
 
 class SearchUserHistoryScreen extends StatefulWidget {
   const SearchUserHistoryScreen({super.key});

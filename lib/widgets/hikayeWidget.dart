@@ -5,7 +5,6 @@ import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/models/hikayeModel.dart';
 
 import '../consts/colorsUtil.dart';
-import '../services/Get/getClass.dart';
 
 class HikayeWidget extends StatefulWidget {
   HikayeWidget({super.key, required this.kullaniciHikaye, this.isBold = false});

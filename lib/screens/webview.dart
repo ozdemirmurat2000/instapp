@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
 import 'package:instapp/screens/homeScreen.dart';
-import 'package:instapp/services/Get/getClass.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebviewScreen extends StatefulWidget {

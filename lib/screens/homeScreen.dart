@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/controllers/errorDialogController.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
 import 'package:instapp/controllers/usersStoriesController.dart';
 import 'package:instapp/models/cardModelDefault.dart';
@@ -19,14 +20,20 @@ import 'package:instapp/screens/searcUserHistoryScreen.dart';
 import 'package:instapp/screens/secretSearchScreen.dart';
 import 'package:instapp/screens/settingScreen.dart';
 import 'package:instapp/screens/storyScreen.dart';
+import 'package:instapp/services/Get/fetch_cookies.dart';
+import 'package:instapp/services/Get/fetch_user_followers_data.dart';
+import 'package:instapp/services/Get/fetch_user_following_data.dart';
+import 'package:instapp/services/Get/fetch_user_info.dart';
+import 'package:instapp/services/Get/fetch_user_stories.dart';
+import 'package:instapp/services/Post/post_user_data_status.dart';
+import 'package:instapp/services/Post/post_user_following_data.dart';
+import 'package:instapp/services/Post/post_user_info.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:instapp/widgets/showDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import '../services/Get/getClass.dart';
-import '../services/Post/postUserData.dart';
 import '../widgets/cardWidgetMulti.dart';
 import '../widgets/hikayeWidget.dart';
 import 'meNotFollowingScreen.dart';
@@ -93,33 +100,75 @@ class _HomeScreenState extends State<HomeScreen> {
     bool userFollowingStatus = pref.getBool('following_data_status') ?? false;
     bool userFollowerStatus = pref.getBool('followers_data_status') ?? false;
 
-    if (await GetServices.getCookies()) {
-      log('TUM FONKSIYONLAR BASLADI');
-      await GetServices.getUserInfo();
-      await GetServices.getUserStories();
+    // CEREZ ALINDIYSA DEVAM ET
+    if (!cookieStatus) {
+      log("1");
+      if (await fetchCookies()) {
+        log("2");
 
-      if (userFollowerStatus == false && userFollowingStatus == false) {
-        await GetServices.getUserFollowingData();
-        await GetServices.getUserFollowersData();
+        // KULLANICININ BILGILERINI AL HATA VARSA GIRIS EKRANINA GERI DON
+        if (!await fetchUserInfo()) {
+          log("3");
+
+          ErrorDialogs.gosterHataDialogi();
+          return false;
+        }
+        // KULLANICILARIN HIKAYESINI AL HATA VARSA GIRIS EKRANINA GERI DON
+        if (!await fetchUserStories()) {
+          ErrorDialogs.gosterHataDialogi();
+          return false;
+        }
+        // KULLANICININ TAKIP ETTIKLERININ VERISINI AL HATA VARSA GIRIS EKRANINA DON
+        if (!userFollowingStatus) {
+          if (!await fetchUserFollowingData()) {
+            ErrorDialogs.gosterHataDialogi();
+            return false;
+          }
+        }
+        // KULLANICININ TAKIPCILERININ VERISINI AL HATA VARSA GIRIS EKRANINA DON
+        if (!userFollowerStatus) {
+          if (!await fetchUserFollowersData()) {
+            ErrorDialogs.gosterHataDialogi();
+            return false;
+          }
+        }
+        // KULLANICININ CEREZ BILGILERINI VERI TABANINA GONDER HATA GIRIS EKRANINA DON
+        if (!await postUserInfo()) {
+          ErrorDialogs.gosterHataDialogi();
+          return false;
+        }
+
+        // KULLANICININ ILK GIRIS BILGILERINI VERI TABANINA GONDER [DAHA ONCE LOGIN OLUNDUYSA BURASI ATLANACAK]
+        if (!await postUserDataStatus()) {
+          ErrorDialogs.gosterHataDialogi();
+          return false;
+        }
+        // KULLANICININ TAKIP ETTIKLERININ VERISINI VERI TABANINA GONDER HATA OLURSA GIRIS EKRANINA DON
+        if (!await postUserFollowingData()) {
+          ErrorDialogs.gosterHataDialogi();
+          return false;
+        }
+        controller.loginStatus.value = true;
+        controller.checkStatus();
       }
+    } else {
+      log("11");
 
-      await PostServices.postUserInfo();
-      await PostServices.postUserFollowingData();
-      await PostServices.postUserData();
-      log('TUM FONKSIYONLAR BITTI');
-      controller.loginStatus.value = true;
-      controller.checkStatus();
-    } else if (cookieStatus) {
-      await GetServices.getUserFollowingData();
-      await GetServices.getUserFollowersData();
-      await GetServices.getUserStories();
-
+      if (!await fetchUserStories()) {
+        ErrorDialogs.gosterHataDialogi();
+        return false;
+      }
+      if (!await fetchUserFollowersData()) {
+        ErrorDialogs.gosterHataDialogi();
+        return false;
+      }
+      if (!await fetchUserFollowingData()) {
+        ErrorDialogs.gosterHataDialogi();
+        return false;
+      }
       controller.loginStatus.value = true;
       controller.checkStatus();
     }
-
-    // controller.loginStatus.value = true;
-    // log('${controller.loginStatus.value}');
   }
 
   var controller = Get.put(LoginStatusController());
@@ -259,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           rightValueText:
                               controller.meNotFollowing.length.toString()),
                       CardWidgetDefault(
-                        onTap: () => Get.to(const HdGoruntuleScreen()),
+                        onTap: () => Get.to(HdGoruntuleScreen()),
                         kartDetay: kartDetay3,
                       ),
 

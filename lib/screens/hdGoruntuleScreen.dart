@@ -1,19 +1,31 @@
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
+import 'package:instapp/controllers/searchedUserController.dart';
+import 'package:instapp/services/Get/fetch_searched_user_data.dart';
 import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:instapp/widgets/kullaniciAramaWidget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../models/searchedUserModel.dart';
+
 class HdGoruntuleScreen extends StatelessWidget {
-  const HdGoruntuleScreen({super.key});
+  HdGoruntuleScreen({super.key});
+
+  TextEditingController tcontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    var controllerUser = Get.put(SearchedUserController());
+
     return Container(
       decoration: const BoxDecoration(
           image: DecorationImage(
@@ -77,18 +89,21 @@ class HdGoruntuleScreen extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 23.0.h),
                   child: KullaniciAramaWidget(
                     textColor: KColors.textColorMini,
-                    controller: TextEditingController(),
+                    controller: tcontroller,
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 23.0.w, right: 22.w),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      HDaramSonucWidget(),
-                      HDaramSonucWidget(),
-                      HDaramSonucWidget(),
-                    ],
+                  padding: EdgeInsets.only(bottom: 10.h),
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: controllerUser.users.length,
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3, mainAxisSpacing: 20.h),
+                    itemBuilder: (context, index) {
+                      return HDaramSonucWidget(
+                          user: controllerUser.users[index]);
+                    },
                   ),
                 ),
               ],
@@ -101,14 +116,38 @@ class HdGoruntuleScreen extends StatelessWidget {
 }
 
 class HDaramSonucWidget extends StatelessWidget {
-  const HDaramSonucWidget({
-    super.key,
-  });
+  HDaramSonucWidget({super.key, required this.user});
+  SearchedUser user;
+
+  var controller = Get.find<SearchedUserController>();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10.0.h),
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            log(controller.userData.value?.profilePicURLHD ?? '');
+
+            return FutureBuilder(
+              future: fetchSearchedUserData(user.username!),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return showUserImage(user.profilePicUrl!);
+                } else if (controller.userData.value?.profilePicURLHD != null) {
+                  return showUserImage(
+                      controller.userData.value!.profilePicURLHD);
+                }
+
+                return showUserImage(user.profilePicUrl!);
+              },
+            );
+          },
+        );
+      },
       child: Column(
         children: [
           Stack(
@@ -117,60 +156,103 @@ class HDaramSonucWidget extends StatelessWidget {
                 width: 90.h,
                 height: 90.h,
                 decoration: BoxDecoration(
-                  image: const DecorationImage(
+                  image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: AssetImage('assets/images/avatar1.jpg')),
+                      image: NetworkImage(user.profilePicUrl!)),
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
               Positioned(
                 right: 0,
                 child: Container(
-                    alignment: Alignment.center,
-                    width: 24.h,
-                    height: 24.h,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          KColors.textColorLinearStart,
-                          KColors.textColorLinearMiddle,
-                          KColors.textColorLinearEnd,
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      border: Border.all(
-                        width: 2.w,
-                        color: Colors.black,
-                      ),
-                      borderRadius: BorderRadius.circular(100),
+                  alignment: Alignment.center,
+                  width: 24.h,
+                  height: 24.h,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        KColors.textColorLinearStart,
+                        KColors.textColorLinearMiddle,
+                        KColors.textColorLinearEnd,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
-                    child: Text(
-                      'HD',
-                      style: KTextStyle.KHeaderTextStyle(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    )),
-              )
+                    border: Border.all(
+                      width: 2.w,
+                      color: Colors.black,
+                    ),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Text(
+                    'HD',
+                    style: KTextStyle.KHeaderTextStyle(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
+          SizedBox(height: 5.h),
           Text(
-            'Nisa Aşçı',
+            kisalt(user.fullName ?? '', 16),
             style: KTextStyle.KHeaderTextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
-          Text(
-            '@nisaascii.41',
-            style: KTextStyle.KHeaderTextStyle(
-              fontSize: 10,
-              textColor: KColors.textColorMini4,
+          Expanded(
+            child: Text(
+              '@${user.username}',
+              style: KTextStyle.KHeaderTextStyle(
+                fontSize: 10,
+                textColor: KColors.textColorMini4,
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Container showUserImage(String imgURL) {
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: 100.h,
+        horizontal: 30.w,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.network(imgURL),
+          SizedBox(height: 20.h),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 40.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.w),
+              color: Colors.white,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Get.back();
+              },
+              child: Text(
+                "Kapat",
+                style: KTextStyle.KHeaderTextStyle(
+                    fontSize: 18.sp, textColor: Colors.red),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  String kisalt(String metin, int uzunluk) {
+    return metin.length <= uzunluk
+        ? metin
+        : '${metin.substring(0, uzunluk)}...';
   }
 }

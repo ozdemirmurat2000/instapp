@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:android_play_install_referrer/android_play_install_referrer.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,10 +40,10 @@ void main() async {
     (controller.platform as AndroidWebViewController)
         .setMediaPlaybackRequiresUserGesture(false);
   }
-  runApp(const MyApp());
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.initialize('699512f3-94ec-4560-a594-ef004f8616d2');
   OneSignal.Notifications.requestPermission(true);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -61,7 +60,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initReferrerDetails();
-    getId();
     checkLoginStatus();
   }
 
@@ -123,22 +121,5 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _referrerDetails = referrerDetailsString;
     });
-  }
-
-  Future getId() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-
-      preferences.setString('device_id', '$iosDeviceInfo');
-      iosDeviceInfo.identifierForVendor;
-    } else if (Platform.isAndroid) {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      preferences.setString('device_id', androidDeviceInfo.id);
-
-      androidDeviceInfo.id;
-    }
   }
 }

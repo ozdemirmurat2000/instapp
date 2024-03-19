@@ -10,11 +10,12 @@ import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/searchedUserController.dart';
 import 'package:instapp/screens/homeScreen.dart';
 import 'package:instapp/screens/premiumScreen.dart';
+import 'package:instapp/services/Get/fetch_searched_user_data.dart';
 import 'package:instapp/utils/screenDetails.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import '../models/hikayeModel.dart';
-import '../services/Get/getClass.dart';
+import '../services/Get/fetch_user_posts.dart';
 import '../widgets/hikayeWidget.dart';
 
 class ShowSecretUsersScreen extends StatefulWidget {
@@ -32,6 +33,7 @@ class _ShowSecretUsersScreenState extends State<ShowSecretUsersScreen> {
     super.initState();
     log(widget.userName);
     fetchUserData();
+    fetchPostData(widget.userName);
   }
 
   bool isLoad = false;
@@ -49,7 +51,7 @@ class _ShowSecretUsersScreenState extends State<ShowSecretUsersScreen> {
   ];
 
   Future<bool> fetchUserData() async {
-    await GetServices.fetchPostData(widget.userName);
+    await fetchSearchedUserData(widget.userName);
 
     setState(() {
       isLoad = true;

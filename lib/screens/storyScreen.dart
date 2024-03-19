@@ -9,7 +9,7 @@ import 'package:instapp/utils/screenDetails.dart';
 import 'package:story_view/story_view.dart';
 
 import '../controllers/usersStoriesController.dart';
-import '../services/Get/getClass.dart';
+import '../services/Get/fetch_user_story.dart';
 
 class StoryScreen extends StatefulWidget {
   StoryScreen({super.key, required this.userId});
@@ -32,7 +32,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
   Future<bool> fetchData(String userID) async {
     try {
-      bool isStory = await GetServices.fetchUserStory(userID);
+      bool isStory = await fetchUserStory(userID);
 
       if (isStory) {
         for (var element in userStoryController.userStories.value.userStory!) {

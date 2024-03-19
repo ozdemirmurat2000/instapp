@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -141,6 +143,7 @@ class AramaSonucKullanici extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        log(controller.userData.value.toString());
         controller.userData.value = null;
         Get.to(ShowSecretUsersScreen(
           userName: user.username ?? '',
