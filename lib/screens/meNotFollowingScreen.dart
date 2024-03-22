@@ -90,7 +90,7 @@ class MeNotFollowingScreen extends StatelessWidget {
               ),
               // USERNAME
               Text(
-                userModel.username!,
+                '@${userModel.username!}',
                 style: KTextStyle.KHeaderTextStyle(
                   fontSize: 12.sp,
                   textColor: const Color(0xFF9A9A9A),

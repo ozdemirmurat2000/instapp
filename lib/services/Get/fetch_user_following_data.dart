@@ -13,6 +13,7 @@ Future<bool> fetchUserFollowingData() async {
     String instagramId = prefs.getString('ds_user_id')!;
     String csrftoken = prefs.getString('csrftoken')!;
     String sessionId = prefs.getString('sessionid')!;
+    String checkData = prefs.getString("first_following_data") ?? '';
 
     String url;
     url = 'https://i.instagram.com/api/v1/friendships/$instagramId/following/';
@@ -34,27 +35,18 @@ Future<bool> fetchUserFollowingData() async {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List users = data['users'];
-        bool status = prefs.getBool('following_data_status') ?? false;
 
-        if (status) {
-          log('yeni takip ettiklerimin listesi alindi');
-          await prefs.setString("new_following_data", jsonEncode(users));
-          var tarih = DateTime.now();
-          await prefs.setInt(
-              'following_data_time', tarih.millisecondsSinceEpoch);
-        } else {
-          try {
-            log('ilk takip ettiklerimin listesi alindi');
+        // ILK KEZ ALINICAKSA
 
-            await prefs.setString("new_following_data", jsonEncode(users));
-            await prefs.setString('current_following_data', jsonEncode(users));
-            await prefs.setBool('following_data_status', true);
-            var tarih = DateTime.now();
-            await prefs.setInt(
-                'following_data_time', tarih.millisecondsSinceEpoch);
-          } catch (e) {
-            log(e.toString());
-          }
+        if (checkData.isEmpty) {
+          await prefs.setString('first_following_data', jsonEncode(users));
+          log("ILK VERILER ALINDI");
+        }
+        // EGER DAHA ONCE ALINDIYSA YENI BILGILERI AL
+
+        else {
+          await prefs.setString('new_following_data', jsonEncode(users));
+          log("YENI VERILER ALINDI");
         }
 
         log('FETCH USER FOLLOWING TAMAMLANDI');

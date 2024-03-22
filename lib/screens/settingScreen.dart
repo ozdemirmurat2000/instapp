@@ -8,7 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
-import 'package:instapp/controllers/settingPageController.dart';
+import 'package:instapp/controllers/notification_controller.dart';
 import 'package:instapp/controllers/showSnackBarController.dart';
 import 'package:instapp/main.dart';
 import 'package:instapp/models/hikayeModel.dart';
@@ -19,7 +19,7 @@ import 'package:instapp/widgets/hikayeWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
-class SettingScreen extends StatefulWidget {
+class SettingScreen extends StatelessWidget {
   SettingScreen(
       {super.key,
       required this.userFullName,
@@ -31,34 +31,8 @@ class SettingScreen extends StatefulWidget {
   String userFullName;
 
   @override
-  State<SettingScreen> createState() => _SettingScreenState();
-}
-
-getNotificationStatus() async {
-  SharedPreferences pref = await SharedPreferences.getInstance();
-
-  bool notificationStatus = pref.getBool('notification_status') ?? false;
-
-  var controller = Get.put(SettingPageController());
-
-  if (notificationStatus) {
-    controller.toogleIngex.value = 2;
-  } else {
-    controller.toogleIngex.value = 1;
-  }
-}
-
-class _SettingScreenState extends State<SettingScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getNotificationStatus();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var controller = Get.put(SettingPageController());
+    var controller = Get.find<NotificationStatusController>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: ScreenDetails.appBar(context),
@@ -122,7 +96,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: 40.h,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: NetworkImage(widget.userImageUrl)),
+                                image: NetworkImage(userImageUrl)),
                             borderRadius: BorderRadius.circular(100),
                           ),
                         ),
@@ -133,7 +107,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.userFullName,
+                              userFullName,
                               style: KTextStyle.KHeaderTextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w800,
@@ -141,7 +115,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               ),
                             ),
                             Text(
-                              '@${widget.userName}',
+                              '@$userName',
                               style: KTextStyle.KHeaderTextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w500,
@@ -164,34 +138,14 @@ class _SettingScreenState extends State<SettingScreen> {
               cardText: 'Bildirimler',
               icon: Iconsax.notification5,
               isWidgetShow: true,
-              widget: SizedBox(
-                width: 45.w,
-                height: 25.h,
-                child: Obx(
-                  () => AnimatedToggleSwitch.dual(
-                    indicatorSize: Size.fromWidth(300.w),
-                    height: 25.h,
-                    onChanged: (value) async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      if (value == 1) {
-                        await prefs.setBool('notification_status', false);
-                      } else {
-                        await prefs.setBool('notification_status', true);
-                      }
-                      controller.toogleIngex.value = value;
-                    },
-                    current: controller.toogleIngex.value,
-                    first: 1,
-                    second: 2,
-                    style: ToggleStyle(
-                        borderColor: Colors.transparent,
-                        indicatorColor: Colors.white,
-                        backgroundColor: controller.toogleIngex.value == 1
-                            ? Colors.grey
-                            : const Color(0xFF00FF73)),
-                  ),
-                ),
+              widget: Obx(
+                () => Switch(
+                    activeColor: Colors.white,
+                    activeTrackColor: const Color(0xFF00FF73),
+                    value: controller.isAllow.value,
+                    onChanged: (value) {
+                      controller.isAllow.value = value;
+                    }),
               ),
             ),
             SettingCard(

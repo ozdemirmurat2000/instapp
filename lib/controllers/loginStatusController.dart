@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:instapp/controllers/errorDialogController.dart';
 import 'package:instapp/models/userDataModel.dart';
 import 'package:instapp/models/userFollowersModel.dart';
 import 'package:instapp/models/userFollowingModel.dart';
@@ -20,14 +21,14 @@ class LoginStatusController extends GetxController {
   RxList<UserFollowersModel> lostFollowers = <UserFollowersModel>[].obs;
 
   // Takip etmeyenler
-
   RxList<UserFollowingModel> notFollowing = <UserFollowingModel>[].obs;
   // Takip etmediklerim
-
   RxList<UserFollowersModel> meNotFollowing = <UserFollowersModel>[].obs;
 
   Future checkStatus() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+
+    // KULLANICI BILGILERINI AL
 
     userDataModel.value.media_count = pref.getString('media_count') ?? '';
     userDataModel.value.userName = pref.getString('username') ?? '';
@@ -35,77 +36,118 @@ class LoginStatusController extends GetxController {
     userDataModel.value.userFollowers = pref.getString('follower_count') ?? '';
     userDataModel.value.userFollowed = pref.getString('following_count') ?? '';
     userDataModel.value.userImageURL = pref.getString('profile_pic_url') ?? '';
-    String dataFolowers = pref.getString('current_followers_data') ?? '';
-    String newDataFolowing = pref.getString('new_following_data') ?? '';
-    String newDataFolowers = pref.getString('new_followers_data') ?? '';
-    final followersList = jsonDecode(dataFolowers) as List<dynamic>;
-    final newFollowingList = jsonDecode(newDataFolowing) as List<dynamic>;
-    final newFollowersList = jsonDecode(newDataFolowers) as List<dynamic>;
 
-    log(pref.getString('follower_count') ?? '');
+    // KULLANICI TAKIPCI VE TAKIP EDILEN LISTELERI AL
 
-    final userFollowersModel =
-        followersList.map((item) => UserFollowersModel.fromJson(item)).toList();
-    final newUserFollowingModel = newFollowingList
-        .map((item) => UserFollowingModel.fromJson(item))
-        .toList();
-    final newUserFollowersModel = newFollowersList
-        .map((item) => UserFollowersModel.fromJson(item))
-        .toList();
+    // ILK GIRISTEKI VERILER
+    String firstFollowersData = pref.getString("first_followers_data") ?? '';
+    String firstFollowingData = pref.getString("first_following_data") ?? '';
+    // SONRAKI GIRISTEKI VERILER
+    String newFollowersData = pref.getString("new_followers_data") ?? '';
+    String newFollowingData = pref.getString("new_following_data") ?? '';
 
-    bool checkFollowers =
-        newUserFollowersModel.length > userFollowersModel.length ? true : false;
+    // KULLANICI BILGILERINI KONTROL ET EGER BILGILER  DURMUYORSA HATA DIALOG GOSTER
 
-    for (var element
-        in checkFollowers ? newUserFollowersModel : userFollowersModel) {
-      bool isHave = false;
+    if (userDataModel.value.userName.isEmpty ||
+        userDataModel.value.userNameSurname.isEmpty ||
+        userDataModel.value.userImageURL.isEmpty) {
+      // KULLANICI VERILERI BOS
+      ErrorDialogs.gosterHataDialogi();
+    }
+    // BILGILER DURUYORSA KULLANICI TAKIPCI VERILERINI HESAPLA
+    else {
+      // YENI TAKIPCILERIN VERISINI HESAPLA EGER VERI VARSA
 
-      for (var el
-          in checkFollowers ? newUserFollowersModel : userFollowersModel) {
-        if (element.pkId == el.pkId) {
-          isHave = true;
-          break;
+      if (newFollowingData.isEmpty || newFollowersData.isEmpty) {
+        // YENI VERI ALINMAMIS BU YUZDEN BURASI BOS GECILECEK
+      } else {
+        // YENI VERI VAR ESKI VE YENI VERI ILE HESAPLAMA YAP
+        var dataNewFollowers = jsonDecode(newFollowersData) as List;
+        var dataNewFollowing = jsonDecode(newFollowingData) as List;
+        var dataFirstFollowers = jsonDecode(firstFollowersData) as List;
+        var dataFirstFollowing = jsonDecode(firstFollowingData) as List;
+
+        List<UserFollowersModel> cnewFollowers = dataNewFollowers
+            .map((e) => UserFollowersModel.fromJson(e))
+            .toList();
+        List<UserFollowingModel> cnewFollowing = dataNewFollowing
+            .map((e) => UserFollowingModel.fromJson(e))
+            .toList();
+        List<UserFollowersModel> cfirstFollowers = dataFirstFollowers
+            .map((e) => UserFollowersModel.fromJson(e))
+            .toList();
+        List<UserFollowingModel> cfirstFollowing = dataFirstFollowing
+            .map((e) => UserFollowingModel.fromJson(e))
+            .toList();
+
+        // ESKI VE YENI LISTEDEKI TAKIPCILERIMI KARSILASTIR
+
+        // YENI TAKIPCILERI BUL
+
+        for (var newData in cnewFollowers) {
+          bool isHave = false;
+
+          for (var firstData in cfirstFollowers) {
+            if (newData.pkId == firstData.pkId) {
+              isHave = true;
+              break;
+            }
+          }
+
+          if (!isHave) {
+            newFollowers.add(newData);
+          }
         }
-      }
-      if (!isHave) {
-        if (checkFollowers) {
-          newFollowers.add(element);
-        } else {
-          lostFollowers.add(element);
+        // KAYBEDILEN TAKIPCILERI BUL
+
+        for (var firstdata in cfirstFollowers) {
+          bool isHave = false;
+          for (var newData in cnewFollowers) {
+            if (firstdata.pkId == newData.pkId) {
+              isHave = true;
+              break;
+            }
+          }
+
+          if (!isHave) {
+            lostFollowers.add(firstdata);
+          }
+        }
+
+        // TAKIP ETMEYENLREI BUL
+
+        for (var firstData in cnewFollowing) {
+          bool isHave = false;
+
+          for (var newData in cnewFollowers) {
+            if (firstData.pkId == newData.pkId) {
+              isHave = true;
+              break;
+            }
+          }
+          if (!isHave) {
+            notFollowing.add(firstData);
+          }
+        }
+        // TAKIP ETMEDIKLERIMI  BUL
+
+        for (var firstData in cnewFollowers) {
+          bool isHave = false;
+
+          for (var newData in cnewFollowing) {
+            if (firstData.pkId == newData.pkId) {
+              isHave = true;
+              break;
+            }
+          }
+          if (!isHave) {
+            meNotFollowing.add(firstData);
+          }
         }
       }
     }
 
     // TAKIP ETMEYENLERI KONTROL ET
-
-    for (var element in newUserFollowingModel) {
-      bool isHave = false;
-      for (var el in newUserFollowersModel) {
-        if (element.pkId == el.pkId) {
-          isHave = true;
-          break;
-        }
-      }
-
-      if (!isHave) {
-        notFollowing.add(element);
-      }
-    }
-    log(notFollowing.length.toString());
-    for (var element in newUserFollowersModel) {
-      bool isHave = false;
-
-      for (var el in newUserFollowingModel) {
-        if (element.username == el.username) {
-          isHave = true;
-          break;
-        }
-      }
-
-      if (!isHave) {
-        meNotFollowing.add(element);
-      }
-    }
   }
 
   Future<bool> logOutAndDeleteAccount(bool isExit) async {

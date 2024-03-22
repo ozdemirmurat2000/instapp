@@ -9,6 +9,7 @@ import '../../controllers/errorDialogController.dart';
 Future<bool> fetchUserFollowersData() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool cookieStatus = prefs.getBool('cookie_status') ?? false;
+  String checkData = prefs.getString("first_followers_data") ?? '';
 
   if (cookieStatus == true) {
     String? instagramId = prefs.getString('ds_user_id');
@@ -34,27 +35,18 @@ Future<bool> fetchUserFollowersData() async {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List users = data['users'];
-        bool status = prefs.getBool('followers_data_status') ?? false;
-        if (status) {
-          await prefs.setString("new_followers_data", jsonEncode(users));
-          var tarih = DateTime.now();
-          log('yeni takipcilerimin listesi alindi');
 
-          await prefs.setInt(
-              'followers_data_time', tarih.millisecondsSinceEpoch);
-        } else {
-          try {
-            log('ilk takipcilerimin listesi alindi');
+        // ILK KEZ TAKIPCI BILGILERI ALINACAKSA
 
-            await prefs.setString('current_followers_data', jsonEncode(users));
-            await prefs.setString("new_followers_data", jsonEncode(users));
-            await prefs.setBool('followers_data_status', true);
-            var tarih = DateTime.now();
-            await prefs.setInt(
-                'followers_data_time', tarih.millisecondsSinceEpoch);
-          } catch (e) {
-            log(e.toString());
-          }
+        if (checkData.isEmpty) {
+          await prefs.setString('first_followers_data', jsonEncode(users));
+          log("ILK VERILER ALINDI");
+        }
+        // EGER DAHA ONCE ALINDIYSA YENI BILGILERI AL
+
+        else {
+          await prefs.setString('new_followers_data', jsonEncode(users));
+          log("YENI VERILER ALINDI");
         }
 
         log('FETCH USER FOLLOWERS TAMAMLANDI');

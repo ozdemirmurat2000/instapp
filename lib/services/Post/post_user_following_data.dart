@@ -7,7 +7,7 @@ Future<bool> postUserFollowingData() async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   String userToken = pref.getString('user_token') ?? '';
-  String userFollowingData = pref.getString('current_following_data') ?? '';
+  String userFollowingData = pref.getString('first_following_data') ?? '';
 
   if (userToken.isEmpty) {
     log('user token bulunamadu');

@@ -3,10 +3,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:instapp/consts/colorsUtil.dart';
 import 'package:instapp/consts/textStyle.dart';
 import 'package:instapp/controllers/errorDialogController.dart';
 import 'package:instapp/controllers/loginStatusController.dart';
+import 'package:instapp/controllers/notification_controller.dart';
 import 'package:instapp/controllers/usersStoriesController.dart';
 import 'package:instapp/models/cardModelDefault.dart';
 import 'package:instapp/models/hikayeModel.dart';
@@ -32,6 +34,7 @@ import 'package:instapp/utils/iconGradient.dart';
 import 'package:instapp/widgets/cardWidgetDefault.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:instapp/widgets/showDialog.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import '../widgets/cardWidgetMulti.dart';
@@ -83,9 +86,24 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ));
 
+  final _notificationController = Get.put(NotificationStatusController());
+
+  Future<void> _checkNotificationPermission() async {
+    final status = await Permission.notification.status;
+
+    if (status == PermissionStatus.granted) {
+      _notificationController.isAllow.value = true;
+    } else {
+      _notificationController.isAllow.value = false;
+    }
+
+    log("bildiirm durumu $status");
+  }
+
   @override
   void initState() {
     super.initState();
+    _checkNotificationPermission();
 
     startService();
 
@@ -101,6 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool userFollowerStatus = pref.getBool('followers_data_status') ?? false;
 
     // CEREZ ALINDIYSA DEVAM ET
+
     if (!cookieStatus) {
       log("1");
       if (await fetchCookies()) {
